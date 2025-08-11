@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Perfil | Directorio Escuelas</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./img/icon.png" type="image/png">
+</head>
+
+<body class="bodyNav">
+    <nav>
+        <a href="index.html">
+            <img src="/img/Logo.png" alt="Logo Directorio Escuelas" />
+        </a>
+        <div>
+            <a id="btnUsuario">Mi Perfil</a>
+            <a href="estadisticas.html">Estadísticas</a>
+            <a href="administrador.html">Administrar Usuarios</a>
+            <a href="index.html">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+        <div id="datosUsuario">Cargando datos...</div>
+    </div>
+
+    <h2>Agregar Colegio</h2>
+    <form id="formAgregarColegio" class="colegio">
+        <input type="text" id="nombre" placeholder="Nombre del colegio" required />
+        <select id="nivel" required>
+            <option value="" disabled selected>Seleccionar nivel educativo</option>
+            <option value="Inicial">Inicial</option>
+            <option value="Primaria">Primaria</option>
+            <option value="Primaria Adultos">Primaria de Adultos</option>
+            <option value="Secundaria">Secundaria</option>
+            <option value="Secundaria Adultos">Secundaria de Adultos</option>
+            <option value="Técnica">Técnica</option>
+            <option value="Centro Profesional">Centro de Formación Profesional</option>
+            <option value="Educación Superior">Educación Superior</option>
+        </select>
+        <input type="text" id="direccion" placeholder="Dirección" required />
+        <input type="text" id="barrio" placeholder="Localidad" required />
+        <input type="number" id="lat" placeholder="Latitud" step="any" required />
+        <input type="number" id="lng" placeholder="Longitud" step="any" required />
+        <button class="btn-login" type="submit">Agregar Colegio</button>
+    </form>
+
+    <div id="popup"></div>
+
+    <div id="estadisticasColegios" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+
+    <footer>
+        Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos
+        reservados
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { firebaseConfig } from './js/firebaseConfig.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const datosDiv = document.getElementById('datosUsuario');
+        const form = document.getElementById('formAgregarColegio');
+        const contenedorEstadisticas = document.getElementById('estadisticasColegios');
+        const btnUsuario = document.getElementById('btnUsuario');
+
+        btnUsuario.addEventListener('click', () => {
+            window.location.href = 'usuario.html';
+        });
+
+        async function mostrarEstadisticas() {
+            contenedorEstadisticas.innerHTML = 'Cargando estadísticas...';
+            const niveles = ['Inicial', 'Primaria', 'Secundaria', 'Técnica', 'Especial', 'Primaria Adultos', 'Secundaria Adultos', 'Centro Profesional', 'Educación Superior'];
+            let html = '';
+
+            for (let nivel of niveles) {
+                const q = query(collection(db, 'escuelas'), where('nivel', '==', nivel));
+                const snapshot = await getDocs(q);
+                const cantidad = snapshot.size;
+
+                html += `
+          <div class="card-nivel" style="border:1px solid #ccc; padding:10px; width:130px; text-align:center;">
+            <h3>${nivel}</h3>
+            <p><strong>${cantidad}</strong> colegios</p>
+          </div>
+        `;
+            }
+
+            contenedorEstadisticas.innerHTML = html;
+        }
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const docRef = doc(db, 'usuarios', user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                let rolTexto = '';
+                if (data.rol === 1) rolTexto = 'Usuario';
+                else if (data.rol === 2) rolTexto = 'Administrador';
+                else if (data.rol === 3) rolTexto = 'Superadministrador';
+
+                datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
+                await mostrarEstadisticas();
+            } else {
+                datosDiv.textContent = 'No se encontraron datos del usuario.';
+            }
+        });
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+
+            const nombre = form.nombre.value.trim();
+            const nivel = form.nivel.value;
+            const direccion = form.direccion.value.trim();
+            const barrio = form.barrio.value.trim();
+            const lat = parseFloat(form.lat.value);
+            const lng = parseFloat(form.lng.value);
+
+            if (!nombre || !nivel || !direccion || !barrio || isNaN(lat) || isNaN(lng)) {
+                mostrarPopup('Completa todos los campos correctamente');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'escuelas'), {
+                    nombre,
+                    nivel,
+                    direccion,
+                    barrio,
+                    lat,
+                    lng,
+                    creadoPor: auth.currentUser.uid,
+                    creadoEn: new Date()
+                });
+                mostrarPopup('Colegio agregado con éxito');
+                form.reset();
+                mostrarEstadisticas();
+            } catch (error) {
+                mostrarPopup('Error al agregar colegio');
+            }
+        });
+
+        function mostrarPopup(mensaje, duracion = 3000) {
+            const popup = document.getElementById('popup');
+            popup.textContent = mensaje;
+            popup.classList.add('show');
+
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, duracion);
+        }
+    </script>
+</body>
+
+</html>

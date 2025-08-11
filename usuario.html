@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mi Perfil | Directorio Escuelas</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./img/icon.png" type="image/png">
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-contenido {
+            background-color: #fff;
+            margin: auto;
+            border-radius: 10px;
+            padding: 20px 25px;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .cerrar {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cerrar:hover {
+            color: #007bff;
+        }
+
+        .modal-contenido input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .modal-contenido button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal-contenido button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #btnOpenPass,
+        #btnOpenLocation {
+            margin: 10px 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        #btnOpenPass:hover,
+        #btnOpenLocation:hover {
+            background-color: #0056b3;
+        }
+
+        #perfilDatos p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+
+<body class="bodyNav">
+    <nav>
+        <a href="index.html">
+            <img src="/img/Logo.png" alt="Logo Directorio Escuelas" />
+        </a>
+        <div>
+            <a href="index.html">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <h2>Perfil de Usuario</h2>
+    <div id="perfilDatos">Cargando...</div>
+
+    <button id="btnOpenLocation">Actualizar Dirección y Coordenadas</button>
+    <button id="btnOpenPass">Cambiar Contraseña</button>
+
+    <div class="modal" id="modalPass" role="dialog" aria-modal="true" aria-labelledby="modalPassTitle">
+        <div class="modal-contenido">
+            <span class="cerrar" id="closePass" aria-label="Cerrar modal contraseña">&times;</span>
+            <h3 id="modalPassTitle">Cambiar Contraseña</h3>
+            <form id="formPassword">
+                <input type="password" id="newPassword" placeholder="Nueva contraseña" required />
+                <button type="submit">Actualizar Contraseña</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modalLocation" role="dialog" aria-modal="true" aria-labelledby="modalLocationTitle">
+        <div class="modal-contenido">
+            <span class="cerrar" id="closeLocation" aria-label="Cerrar modal ubicación">&times;</span>
+            <h3 id="modalLocationTitle">Actualizar Dirección y Coordenadas</h3>
+            <form id="formLocation">
+                <input type="text" id="direccion" placeholder="Dirección" required />
+                <input type="number" step="any" id="latitud" placeholder="Latitud" required />
+                <input type="number" step="any" id="longitud" placeholder="Longitud" required />
+                <button type="submit">Actualizar Ubicación</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { firebaseConfig } from './js/firebaseConfig.js';
+        import { getAuth, onAuthStateChanged, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const perfilDatos = document.getElementById('perfilDatos');
+
+        const modalPass = document.getElementById('modalPass');
+        const modalLocation = document.getElementById('modalLocation');
+        const btnOpenPass = document.getElementById('btnOpenPass');
+        const btnOpenLocation = document.getElementById('btnOpenLocation');
+        const closePass = document.getElementById('closePass');
+        const closeLocation = document.getElementById('closeLocation');
+
+        btnOpenPass.addEventListener('click', () => modalPass.classList.add('active'));
+        btnOpenLocation.addEventListener('click', () => modalLocation.classList.add('active'));
+
+        closePass.addEventListener('click', () => modalPass.classList.remove('active'));
+        closeLocation.addEventListener('click', () => modalLocation.classList.remove('active'));
+
+        window.addEventListener('click', e => {
+            if (e.target === modalPass) modalPass.classList.remove('active');
+            if (e.target === modalLocation) modalLocation.classList.remove('active');
+        });
+
+        function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        async function obtenerEscuelasCercanas(latUser, lngUser) {
+            const radios = 2;
+
+            const escuelasRef = collection(db, 'escuelas');
+            const snapshot = await getDocs(escuelasRef);
+
+            const escuelasCercanas = [];
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.lat != null && data.lng != null) {
+                    const distancia = calcularDistanciaKm(latUser, lngUser, data.lat, data.lng);
+                    if (distancia <= radios) {
+                        escuelasCercanas.push({
+                            id: doc.id,
+                            nombre: data.nombre || 'Sin nombre',
+                            direccion: data.direccion || 'Sin dirección',
+                            distancia: distancia.toFixed(2)
+                        });
+                    }
+                }
+            });
+
+            return escuelasCercanas;
+        }
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const docRef = doc(db, 'usuarios', user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                let rolTexto = '';
+                if (data.rol === 1) rolTexto = 'Usuario';
+                else if (data.rol === 2) rolTexto = 'Administrador';
+                else if (data.rol === 3) rolTexto = 'Superadministrador';
+
+                perfilDatos.innerHTML = `
+          <p><strong>Nombre:</strong> ${data.nombre}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Rol:</strong> ${rolTexto}</p>
+          <p><strong>Dirección:</strong> ${data.direccion || 'No registrada'}</p>
+        `;
+
+                if (data.direccion) document.getElementById('direccion').value = data.direccion;
+                if (data.coordenadas) {
+                    document.getElementById('latitud').value = data.coordenadas.lat;
+                    document.getElementById('longitud').value = data.coordenadas.lng;
+                }
+
+                if (data.coordenadas) {
+                    const escuelas = await obtenerEscuelasCercanas(data.coordenadas.lat, data.coordenadas.lng);
+                    if (escuelas.length > 0) {
+                        let html = '<h3>Escuelas cercanas en un radio de 2 km:</h3><ul>';
+                        escuelas.forEach(e => {
+                            html += `<li><strong>${e.nombre}</strong> - ${e.direccion} (${e.distancia} km)</li>`;
+                        });
+                        html += '</ul>';
+                        perfilDatos.insertAdjacentHTML('beforeend', html);
+                    } else {
+                        perfilDatos.insertAdjacentHTML('beforeend', '<p>No hay escuelas cercanas en un radio de 2 km.</p>');
+                    }
+                }
+            } else {
+                perfilDatos.innerHTML = '<p>No se encontraron datos de usuario.</p>';
+            }
+        });
+
+        const formPassword = document.getElementById('formPassword');
+        formPassword.addEventListener('submit', async e => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            try {
+                await updatePassword(auth.currentUser, newPass);
+                alert('Contraseña actualizada correctamente');
+                formPassword.reset();
+                modalPass.classList.remove('active');
+            } catch (error) {
+                alert('Error al cambiar contraseña: ' + error.message);
+            }
+        });
+
+        const formLocation = document.getElementById('formLocation');
+        formLocation.addEventListener('submit', async e => {
+            e.preventDefault();
+            const direccion = document.getElementById('direccion').value.trim();
+            const lat = parseFloat(document.getElementById('latitud').value);
+            const lng = parseFloat(document.getElementById('longitud').value);
+
+            if (!direccion || isNaN(lat) || isNaN(lng)) {
+                alert('Por favor completa todos los campos correctamente.');
+                return;
+            }
+
+            try {
+                const user = auth.currentUser;
+                const userDocRef = doc(db, 'usuarios', user.uid);
+                await updateDoc(userDocRef, {
+                    direccion,
+                    coordenadas: { lat, lng }
+                });
+                alert('Ubicación actualizada correctamente');
+                modalLocation.classList.remove('active');
+                window.location.reload();
+            } catch (error) {
+                alert('Error al actualizar ubicación: ' + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

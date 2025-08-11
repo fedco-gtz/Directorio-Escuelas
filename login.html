@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Directorio Escuelas</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="icon" href="./img/icon.png" type="image/png" />
+</head>
+<body class="bodyNav">
+  <nav>
+    <a href="index.html">
+      <img src="/img/Logo.png" alt="Logo Directorio Escuelas" />
+    </a>
+    <div>
+      <a href="como-usar.html">¿Cómo usar la página?</a>
+    </div>
+  </nav>
+
+  <div class="bodyLogin">
+    <h2>Iniciar Sesión</h2>
+    <div id="errorMsg" class="error"></div>
+    <form id="loginForm">
+      <input class="nivel" type="email" id="email" placeholder="Email" required />
+      <input class="nivel" type="password" id="password" placeholder="Contraseña" required />
+      <button class="btn-login" type="submit">Ingresar</button>
+    </form>
+
+    <button id="abrirRegistro" class="btn-login" style="margin-top:15px;">Registrarse</button>
+  </div>
+
+  <div id="modalRegistro" class="modal">
+    <div class="modal-contenido">
+      <span class="cerrar" id="cerrarRegistro">&times;</span>
+      <h2>Registrarse</h2>
+      <form id="registerForm">
+        <input class="nivel" type="text" id="nombre" placeholder="Nombre completo" required />
+        <input class="nivel" type="email" id="regEmail" placeholder="Email" required />
+        <input class="nivel" type="password" id="regPassword" placeholder="Contraseña" required />
+        <button class="btn-login" type="submit">Crear cuenta</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos reservados
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, collection, query, where, getDocs, setDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBsEt6NEJ-NHpEw5YDK_JJvHXoEUgkMYiw",
+      authDomain: "colegios-6c66d.firebaseapp.com",
+      projectId: "colegios-6c66d",
+      storageBucket: "colegios-6c66d.firebasestorage.app",
+      messagingSenderId: "698954171487",
+      appId: "1:698954171487:web:6b71f3ca3a2d2c8a9687ea"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const errorDiv = document.getElementById('errorMsg');
+    const modalRegistro = document.getElementById('modalRegistro');
+    const abrirRegistro = document.getElementById('abrirRegistro');
+    const cerrarRegistro = document.getElementById('cerrarRegistro');
+
+    abrirRegistro.addEventListener('click', () => {
+      modalRegistro.style.display = 'flex';
+    });
+
+    cerrarRegistro.addEventListener('click', () => {
+      modalRegistro.style.display = 'none';
+    });
+
+    window.addEventListener('click', e => {
+      if (e.target === modalRegistro) {
+        modalRegistro.style.display = 'none';
+      }
+    });
+
+    async function iniciarSesion(email, password) {
+      errorDiv.textContent = '';
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        const usuariosRef = collection(db, 'usuarios');
+        const q = query(usuariosRef, where('uidAuth', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docUser = querySnapshot.docs[0];
+          const dataUser = docUser.data();
+
+          const rol = Number(dataUser.rol);
+
+          switch (rol) {
+            case 1:
+              window.location.href = 'usuario.html';
+              break;
+            case 2:
+              window.location.href = 'perfil.html';
+              break;
+            case 3:
+              window.location.href = 'super.html';
+              break;
+            default:
+              errorDiv.textContent = 'Rol de usuario no reconocido.';
+              await signOut(auth);
+          }
+        } else {
+          errorDiv.textContent = 'Usuario no autorizado para ingresar.';
+          await signOut(auth);
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Error al iniciar sesión: ' + error.message;
+      }
+    }
+
+    async function registrarUsuario(nombre, email, password) {
+      errorDiv.textContent = '';
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "usuarios", user.uid), {
+          nombre: nombre,
+          email: email,
+          uidAuth: user.uid,
+          rol: 1
+        });
+
+        alert('Usuario registrado con éxito');
+        modalRegistro.style.display = 'none';
+      } catch (error) {
+        errorDiv.textContent = 'Error al registrarse: ' + error.message;
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      iniciarSesion(email, password);
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const nombre = e.target.nombre.value;
+      const email = e.target.regEmail.value;
+      const password = e.target.regPassword.value;
+      registrarUsuario(nombre, email, password);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+:root {
+    --accent: #007bff;
+    --accent-two: #0056b3;
+    --error: #A52019;
+    --border: #f0f0f0;
+    --muted: #666;
+    --background: #f2f2f2;
+    --background-two: #004d99;
+
+}
+
+/* INDEX */
+.body {
+    font-family: Inter, system-ui, Arial;
+    margin: 0;
+    display: flex;
+    height: 100vh
+}
+
+.sidebar {
+    width: 480px;
+    min-width: 300px;
+    max-width: 420px;
+    border-right: 1px solid var(--border);
+    padding: 18px;
+    box-sizing: border-box;
+    overflow: auto
+}
+
+.map {
+    flex: 1
+}
+
+h1 {
+    margin: 0 0 10px;
+    font-size: 20px
+}
+
+.search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px
+}
+
+input,
+select {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    flex: 1
+}
+
+.school-list {
+    margin-top: 8px
+}
+
+.school {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px
+}
+
+.meta {
+    font-size: 13px;
+    color: var(--muted)
+}
+
+.actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px
+}
+
+.small {
+    font-size: 13px;
+    padding: 6px 8px
+}
+
+.badge {
+    background: var(--background);
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px
+}
+
+@media(max-width:800px) {
+    .sidebar {
+        width: 100%;
+        height: 45vh;
+        max-width: none
+    }
+
+    body {
+        flex-direction: column
+    }
+
+    .map {
+        height: 55vh
+    }
+}
+
+/* LOGIN */
+.bodyNav {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    margin: 0;
+    background-color: var(--background-two);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+nav img {
+    height: 100px;
+    cursor: pointer;
+}
+
+.logo {
+    height: 80px;
+}
+
+.bodyLogin {
+    max-width: 400px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#errorMsg {
+    color: red;
+    height: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.nivel {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: #004d99;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #003366;
+}
+
+.error {
+    color: var(--error);
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+footer {
+    background-color: #222;
+    color: #eee;
+    text-align: center;
+    padding: 15px 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
+    margin-top: 14px;
+    font-size: 13px;
+}
+
+footer a {
+    color: #66b2ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-contenido {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.cerrar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+/* PERFIL */
+.colegio {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 90%;
+    justify-content: center;
+    height: 300px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.colegio input,
+.colegio select,
+.colegio button {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#estadisticasColegios {
+    display: flex;
+    flex-wrap: nowrap; 
+    justify-content: center;
+    gap: 15px;
+    margin: 10px auto;
+    max-width: auto;
+    overflow-x: auto;
+    min-width: auto;
+}
+
+.card-nivel {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    background: #f9f9f9;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    flex: 0 0 auto;
+    min-width: auto;
+    margin-top: 10px;
+}
+
+.card-nivel:hover {
+    transform: translateY(-5px);
+}
+
+.card-nivel h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.card-nivel p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+#popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #323232;
+  color: #fff;
+  padding: 15px 25px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  max-width: 90%;
+  text-align: center;
+}
+
+#popup.show {
+  opacity: 1;
+  pointer-events: auto;
+}

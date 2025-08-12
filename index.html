@@ -44,6 +44,37 @@
             window.location.href = 'login.html';
         });
     </script>
+     <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { firebaseConfig } from './js/firebaseConfig.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } 
+            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+    
+        async function incrementarVisitas() {
+            try {
+                console.log("Intentando incrementar visitas...");
+                const visitasRef = doc(db, "estadisticas", "visitas");
+                const visitasSnap = await getDoc(visitasRef);
+
+                if (!visitasSnap.exists()) {
+                    console.log("Documento 'visitas' no existe. Creando con cantidad=1.");
+                    await setDoc(visitasRef, { cantidad: 1 });
+                    console.log("Documento creado.");
+                } else {
+                    console.log("Documento existe con cantidad actual:", visitasSnap.data().cantidad);
+                    await updateDoc(visitasRef, { cantidad: increment(1) });
+                    console.log("Cantidad incrementada.");
+                }
+            } catch (error) {
+                console.error("Error incrementando visitas:", error);
+            }
+        }
+
+        incrementarVisitas();
+    </script>
 </body>
 
 </html>

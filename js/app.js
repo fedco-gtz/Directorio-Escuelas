@@ -95,20 +95,3 @@ async function cargarColegios() {
 }
 
 cargarColegios();
-
-async function incrementarVisitas() {
-  try {
-    const visitasRef = doc(db, "estadisticas", "visitas");
-    const visitasSnap = await getDoc(visitasRef);
-
-    if (!visitasSnap.exists()) {
-      await setDoc(visitasRef, { cantidad: 1 });
-    } else {
-      await updateDoc(visitasRef, { cantidad: increment(1) });
-    }
-  } catch (error) {
-    console.error("Error incrementando visitas:", error);
-  }
-}
-
-incrementarVisitas();

@@ -23,9 +23,11 @@
     <h2>MI PERFIL</h2>
     <div id="perfilDatos">Cargando...</div>
 
+    <button class="btn-login" id="btnOpenProfile">MODIFICAR DATOS</button>
     <button class="btn-login" id="btnOpenLocation">ACTUALIZAR DIRECCIÓN</button>
     <button class="btn-login" id="btnOpenPass">CAMBIAR CONTRASEÑA</button>
 
+    <!-- Modal para cambiar contraseña -->
     <div class="modal" id="modalPass" role="dialog" aria-modal="true" aria-labelledby="modalPassTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closePass" aria-label="Cerrar modal contraseña">&times;</span>
@@ -37,6 +39,7 @@
         </div>
     </div>
 
+    <!-- Modal para actualizar dirección -->
     <div class="modal" id="modalLocation" role="dialog" aria-modal="true" aria-labelledby="modalLocationTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closeLocation" aria-label="Cerrar modal ubicación">&times;</span>
@@ -45,6 +48,24 @@
                 <input type="text" id="direccion" placeholder="Dirección" required />
                 <input type="number" step="any" id="latitud" placeholder="Latitud" required />
                 <input type="number" step="any" id="longitud" placeholder="Longitud" required />
+                <button class="btn-login" type="submit">ACTUALIZAR</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para modificar nombre y género -->
+    <div class="modal" id="modalProfile" role="dialog" aria-modal="true" aria-labelledby="modalProfileTitle">
+        <div class="modal-contenido">
+            <span class="cerrar" id="closeProfile" aria-label="Cerrar modal datos">&times;</span>
+            <h3 id="modalProfileTitle">MODIFICAR DATOS</h3>
+            <form id="formProfile">
+                <input type="text" id="nombre" placeholder="Nombre" required />
+                <select id="genero" required>
+                    <option value="">Seleccionar género</option>
+                    <option value="M">MASCULINO</option>
+                    <option value="F">FEMENINO</option>
+                    <option value="X">NO BINARIO</option>
+                </select>
                 <button class="btn-login" type="submit">ACTUALIZAR</button>
             </form>
         </div>
@@ -64,20 +85,28 @@
 
         const modalPass = document.getElementById('modalPass');
         const modalLocation = document.getElementById('modalLocation');
+        const modalProfile = document.getElementById('modalProfile');
+
         const btnOpenPass = document.getElementById('btnOpenPass');
         const btnOpenLocation = document.getElementById('btnOpenLocation');
+        const btnOpenProfile = document.getElementById('btnOpenProfile');
+
         const closePass = document.getElementById('closePass');
         const closeLocation = document.getElementById('closeLocation');
+        const closeProfile = document.getElementById('closeProfile');
 
         btnOpenPass.addEventListener('click', () => modalPass.classList.add('active'));
         btnOpenLocation.addEventListener('click', () => modalLocation.classList.add('active'));
+        btnOpenProfile.addEventListener('click', () => modalProfile.classList.add('active'));
 
         closePass.addEventListener('click', () => modalPass.classList.remove('active'));
         closeLocation.addEventListener('click', () => modalLocation.classList.remove('active'));
+        closeProfile.addEventListener('click', () => modalProfile.classList.remove('active'));
 
         window.addEventListener('click', e => {
             if (e.target === modalPass) modalPass.classList.remove('active');
             if (e.target === modalLocation) modalLocation.classList.remove('active');
+            if (e.target === modalProfile) modalProfile.classList.remove('active');
         });
 
         function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
@@ -94,10 +123,8 @@
 
         async function obtenerEscuelasCercanas(latUser, lngUser) {
             const radios = 2;
-
             const escuelasRef = collection(db, 'escuelas');
             const snapshot = await getDocs(escuelasRef);
-
             const escuelasCercanas = [];
 
             snapshot.forEach(doc => {
@@ -114,7 +141,6 @@
                     }
                 }
             });
-
             return escuelasCercanas;
         }
 
@@ -135,12 +161,14 @@
                 else if (data.rol === 3) rolTexto = 'Superadministrador';
 
                 perfilDatos.innerHTML = `
-          <p><strong>Nombre:</strong> ${data.nombre}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Rol:</strong> ${rolTexto}</p>
-          <p><strong>Dirección:</strong> ${data.direccion || 'No registrada'}</p>
-        `;
+                    <p><strong>Nombre:</strong> ${data.nombre}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Rol:</strong> ${rolTexto}</p>
+                    <p><strong>Dirección:</strong> ${data.direccion || 'No registrada'}</p>
+                `;
 
+                document.getElementById('nombre').value = data.nombre || '';
+                document.getElementById('genero').value = data.genero || '';
                 if (data.direccion) document.getElementById('direccion').value = data.direccion;
                 if (data.coordenadas) {
                     document.getElementById('latitud').value = data.coordenadas.lat;
@@ -203,6 +231,29 @@
                 window.location.reload();
             } catch (error) {
                 alert('Error al actualizar ubicación: ' + error.message);
+            }
+        });
+
+        const formProfile = document.getElementById('formProfile');
+        formProfile.addEventListener('submit', async e => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value.trim();
+            const genero = document.getElementById('genero').value;
+
+            if (!nombre || !genero) {
+                alert('Por favor completa todos los campos.');
+                return;
+            }
+
+            try {
+                const user = auth.currentUser;
+                const userDocRef = doc(db, 'usuarios', user.uid);
+                await updateDoc(userDocRef, { nombre, genero });
+                alert('Datos actualizados correctamente');
+                modalProfile.classList.remove('active');
+                window.location.reload();
+            } catch (error) {
+                alert('Error al actualizar datos: ' + error.message);
             }
         });
     </script>

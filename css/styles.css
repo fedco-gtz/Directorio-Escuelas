@@ -33,7 +33,7 @@
 
 h1 {
     margin: 0 0 10px;
-    font-size: 20px
+    font-size: 18px
 }
 
 .search {
@@ -429,7 +429,8 @@ footer a:hover {
 }
 
 #btnOpenPass,
-#btnOpenLocation {
+#btnOpenLocation,
+#btnOpenProfile {
     margin: 10px 5px;
     padding: 10px 15px;
     font-size: 16px;

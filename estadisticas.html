@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,7 +7,6 @@
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="icon" href="./img/Icon.png" type="image/png">
 </head>
-
 <body class="bodyNav">
     <nav>
         <a href="index.html">
@@ -85,47 +83,17 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
         import { firebaseConfig } from './js/firebaseConfig.js';
-        import {
-            getFirestore, collection, getDocs, doc, getDoc,
-            updateDoc, setDoc, increment
-        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, getDoc } 
+            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Incrementar visitas en Firestore
-        async function incrementarVisitas() {
-            try {
-                const visitasRef = doc(db, "estadisticas", "visitas");
-                const visitasSnap = await getDoc(visitasRef);
-
-                if (!visitasSnap.exists()) {
-                    await setDoc(visitasRef, { cantidad: 1 });
-                    return 1;
-                } else {
-                    await updateDoc(visitasRef, { cantidad: increment(1) });
-                    return visitasSnap.data().cantidad + 1;
-                }
-            } catch (error) {
-                console.error("Error incrementando visitas:", error);
-                return null;
-            }
-        }
-
         async function cargarEstadisticas() {
-            // Primero incrementamos y mostramos las visitas
-            const visitasCount = await incrementarVisitas();
-            if (visitasCount !== null) {
-                document.getElementById("visitasCount").textContent = visitasCount;
-            } else {
-                document.getElementById("visitasCount").textContent = "Error";
-            }
-
-            // Colegios cargados
             const colegiosSnapshot = await getDocs(collection(db, "escuelas"));
-            document.getElementById("colegiosCount").textContent = colegiosSnapshot.size;
+            const colegiosCount = colegiosSnapshot.size;
+            document.getElementById("colegiosCount").textContent = colegiosCount;
 
-            // Localidades
             const localidadesCount = {};
             colegiosSnapshot.docs.forEach(docu => {
                 const data = docu.data();
@@ -144,20 +112,20 @@
                 localidadesLista.appendChild(li);
             });
 
-            // Usuarios
+            const visitasDoc = await getDoc(doc(db, "estadisticas", "visitas"));
+            if (visitasDoc.exists()) {
+                document.getElementById("visitasCount").textContent = visitasDoc.data().cantidad || 0;
+            } else {
+                document.getElementById("visitasCount").textContent = 0;
+            }
+
             const usuariosSnapshot = await getDocs(collection(db, "usuarios"));
             const usuarios = usuariosSnapshot.docs.map(doc => doc.data());
 
             document.getElementById("usuariosCount").textContent = usuarios.length;
-
-            const hombres = usuarios.filter(u => u.genero === "H").length;
-            const mujeres = usuarios.filter(u => u.genero === "M").length;
-            const nobinario = usuarios.filter(u => u.genero === "X").length;
-
-            document.getElementById("usuariosHombres").textContent = hombres;
-            document.getElementById("usuariosMujeres").textContent = mujeres;
-            document.getElementById("usuariosNoBinario").textContent = nobinario;
-
+            document.getElementById("usuariosHombres").textContent = usuarios.filter(u => u.genero === "M").length;
+            document.getElementById("usuariosMujeres").textContent = usuarios.filter(u => u.genero === "F").length;
+            document.getElementById("usuariosNoBinario").textContent = usuarios.filter(u => u.genero === "X").length;
             document.getElementById("usuariosRol1").textContent = usuarios.filter(u => u.rol === 1).length;
             document.getElementById("usuariosRol2").textContent = usuarios.filter(u => u.rol === 2).length;
             document.getElementById("usuariosRol3").textContent = usuarios.filter(u => u.rol === 3).length;
@@ -165,15 +133,14 @@
 
         cargarEstadisticas().catch(error => {
             console.error("Error cargando estadísticas:", error);
-            [
+            const campos = [
                 "colegiosCount", "visitasCount", "usuariosCount",
                 "usuariosHombres", "usuariosMujeres", "usuariosNoBinario",
                 "usuariosRol1", "usuariosRol2", "usuariosRol3"
-            ].forEach(id => document.getElementById(id).textContent = "Error");
-
+            ];
+            campos.forEach(id => document.getElementById(id).textContent = "Error");
             document.getElementById("localidades-lista").innerHTML = "<li>Error cargando datos</li>";
         });
     </script>
 </body>
-
 </html>

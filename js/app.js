@@ -1,16 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { firebaseConfig } from './firebaseConfig.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-
-// Configura Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBsEt6NEJ-NHpEw5YDK_JJvHXoEUgkMYiw",
-  authDomain: "colegios-6c66d.firebaseapp.com",
-  projectId: "colegios-6c66d",
-  storageBucket: "colegios-6c66d.firebasestorage.app",
-  messagingSenderId: "698954171487",
-  appId: "1:698954171487:web:6b71f3ca3a2d2c8a9687ea"
-};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -30,9 +21,9 @@ function renderizar(datos) {
   markers.clearLayers();
   const lista = document.getElementById('lista');
   lista.innerHTML = '';
-  if (!datos.length) { 
-    lista.innerHTML = '<div class="meta">No se encontraron escuelas.</div>'; 
-    return; 
+  if (!datos.length) {
+    lista.innerHTML = '<div class="meta">No se encontraron escuelas.</div>';
+    return;
   }
 
   datos.forEach(e => {

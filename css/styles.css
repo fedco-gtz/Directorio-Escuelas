@@ -195,7 +195,7 @@ footer {
     width: 100%;
     font-size: 14px;
     margin-top: 14px;
-    font-size: 13px;
+    position: relative;
 }
 
 footer a {
@@ -262,7 +262,7 @@ footer a:hover {
 
 #estadisticasColegios {
     display: flex;
-    flex-wrap: nowrap; 
+    flex-wrap: nowrap;
     justify-content: center;
     gap: 15px;
     margin: 10px auto;
@@ -299,25 +299,146 @@ footer a:hover {
 }
 
 #popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #323232;
-  color: #fff;
-  padding: 15px 25px;
-  border-radius: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 10000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  max-width: 90%;
-  text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #323232;
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    max-width: 90%;
+    text-align: center;
 }
 
 #popup.show {
-  opacity: 1;
-  pointer-events: auto;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.estadisticas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto 40px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.card .titulo {
+    font-size: 1.2rem;
+    color: #000000;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.card .valor {
+    font-size: 2.5rem;
+    color: #0056b3;
+    font-weight: bold;
+}
+
+#localidades-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+#localidades-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#localidades-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+}
+
+#localidades-lista li {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 1rem;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+}
+
+#localidades-lista li:nth-child(odd) {
+    background: #f9f9f9;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.cerrar:hover {
+    color: #007bff;
+}
+
+.modal-contenido input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.modal-contenido button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #004d99;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-contenido button[type="submit"]:hover {
+    background-color: #003366;
+}
+
+#btnOpenPass,
+#btnOpenLocation {
+    margin: 10px 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    width: auto;
+}
+
+#perfilDatos p {
+    margin: 6px 0;
 }

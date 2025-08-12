@@ -5,90 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Estadísticas | Directorio Escuelas</title>
-      <link rel="stylesheet" href="./css/styles.css">
-    <link rel="icon" href="./img/icon.png" type="image/png">
-    <style>
-
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        .estadisticas-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto 40px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-            text-align: center;
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-        }
-
-        .card .titulo {
-            font-size: 1.2rem;
-            color: #555;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .card .valor {
-            font-size: 2.5rem;
-            color: #1e88e5;
-            font-weight: bold;
-        }
-
-        /* Nueva sección para listado por localidad */
-        #localidades-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        #localidades-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        #localidades-lista {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 300px;
-            overflow-y: auto;
-            border-top: 1px solid #ddd;
-        }
-
-        #localidades-lista li {
-            padding: 8px 10px;
-            border-bottom: 1px solid #ddd;
-            font-size: 1rem;
-            color: #444;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #localidades-lista li:nth-child(odd) {
-            background: #f9f9f9;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./img/Icon.png" type="image/png">
 </head>
 
 <body class="bodyNav">
@@ -103,86 +21,80 @@
         </div>
     </nav>
 
-    <h1>Estadísticas Generales</h1>
+    <h2>ESTADÍSTICAS GENERALES</h2>
 
     <div class="estadisticas-container">
         <div class="card">
-            <div class="titulo">Colegios cargados</div>
+            <div class="titulo">COLEGIOS CARGADOS</div>
             <div class="valor" id="colegiosCount">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Visitas a la página</div>
+            <div class="titulo">VISITAS A LA PÁGINA</div>
             <div class="valor" id="visitasCount">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Usuarios totales</div>
+            <div class="titulo">USUARIOS TOTALES</div>
             <div class="valor" id="usuariosCount">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Total Hombres</div>
+            <div class="titulo">TOTAL HOMBRES</div>
             <div class="valor" id="usuariosHombres">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Total Mujeres</div>
+            <div class="titulo">TOTAL MUJERES</div>
             <div class="valor" id="usuariosMujeres">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Total No Binario</div>
+            <div class="titulo">TOTAL NO BINARIO</div>
             <div class="valor" id="usuariosNoBinario">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Usuarios</div>
+            <div class="titulo">USUARIOS</div>
             <div class="valor" id="usuariosRol1">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Administradores</div>
+            <div class="titulo">ADMINISTRADORES</div>
             <div class="valor" id="usuariosRol2">Cargando...</div>
         </div>
 
         <div class="card">
-            <div class="titulo">Superadministradores</div>
+            <div class="titulo">SUPERADMINISTRADORES</div>
             <div class="valor" id="usuariosRol3">Cargando...</div>
         </div>
     </div>
 
-    <!-- Nueva sección para listado de escuelas por localidad -->
     <section id="localidades-container">
-        <h2>Cantidad de escuelas por localidad</h2>
+        <h2>CANTIDAD DE ESCUELAS POR LOCALIDAD</h2>
         <ul id="localidades-lista">
             <li>Cargando datos...</li>
         </ul>
     </section>
 
+    <footer>
+        Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos
+        reservados
+    </footer>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { firebaseConfig } from './js/firebaseConfig.js';
         import { getFirestore, collection, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBsEt6NEJ-NHpEw5YDK_JJvHXoEUgkMYiw",
-            authDomain: "colegios-6c66d.firebaseapp.com",
-            projectId: "colegios-6c66d",
-            storageBucket: "colegios-6c66d.firebasestorage.app",
-            messagingSenderId: "698954171487",
-            appId: "1:698954171487:web:6b71f3ca3a2d2c8a9687ea"
-        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         async function cargarEstadisticas() {
-            // Colegios
             const colegiosSnapshot = await getDocs(collection(db, "escuelas"));
             const colegiosCount = colegiosSnapshot.size;
             document.getElementById("colegiosCount").textContent = colegiosCount;
 
-            // Contar escuelas por localidad
             const localidadesCount = {};
             colegiosSnapshot.docs.forEach(doc => {
                 const data = doc.data();
@@ -190,9 +102,8 @@
                 localidadesCount[localidad] = (localidadesCount[localidad] || 0) + 1;
             });
 
-            // Mostrar listado de localidades
             const localidadesLista = document.getElementById("localidades-lista");
-            localidadesLista.innerHTML = ""; // limpio
+            localidadesLista.innerHTML = "";
 
             const localidadesOrdenadas = Object.keys(localidadesCount).sort();
 

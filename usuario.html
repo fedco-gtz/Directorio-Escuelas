@@ -6,102 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mi Perfil | Directorio Escuelas</title>
     <link rel="stylesheet" href="./css/styles.css">
-    <link rel="icon" href="./img/icon.png" type="image/png">
-
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-contenido {
-            background-color: #fff;
-            margin: auto;
-            border-radius: 10px;
-            padding: 20px 25px;
-            max-width: 400px;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .cerrar {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: #333;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .cerrar:hover {
-            color: #007bff;
-        }
-
-        .modal-contenido input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .modal-contenido button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .modal-contenido button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        #btnOpenPass,
-        #btnOpenLocation {
-            margin: 10px 5px;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            transition: background-color 0.3s;
-        }
-
-        #btnOpenPass:hover,
-        #btnOpenLocation:hover {
-            background-color: #0056b3;
-        }
-
-        #perfilDatos p {
-            margin: 6px 0;
-        }
-    </style>
+    <link rel="icon" href="./img/Icon.png" type="image/png">
 </head>
 
 <body class="bodyNav">
@@ -114,19 +19,19 @@
         </div>
     </nav>
 
-    <h2>Perfil de Usuario</h2>
+    <h2>MI PERFIL</h2>
     <div id="perfilDatos">Cargando...</div>
 
-    <button id="btnOpenLocation">Actualizar Dirección y Coordenadas</button>
-    <button id="btnOpenPass">Cambiar Contraseña</button>
+    <button class="btn-login" id="btnOpenLocation">ACTUALIZAR DIRECCIÓN</button>
+    <button class="btn-login" id="btnOpenPass">CAMBIAR CONTRASEÑA</button>
 
     <div class="modal" id="modalPass" role="dialog" aria-modal="true" aria-labelledby="modalPassTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closePass" aria-label="Cerrar modal contraseña">&times;</span>
-            <h3 id="modalPassTitle">Cambiar Contraseña</h3>
+            <h3 id="modalPassTitle">CAMBIAR CONTRASEÑA</h3>
             <form id="formPassword">
                 <input type="password" id="newPassword" placeholder="Nueva contraseña" required />
-                <button type="submit">Actualizar Contraseña</button>
+                <button type="submit">ACTUALIZAR</button>
             </form>
         </div>
     </div>
@@ -134,12 +39,12 @@
     <div class="modal" id="modalLocation" role="dialog" aria-modal="true" aria-labelledby="modalLocationTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closeLocation" aria-label="Cerrar modal ubicación">&times;</span>
-            <h3 id="modalLocationTitle">Actualizar Dirección y Coordenadas</h3>
+            <h3 id="modalLocationTitle">ACTUALIZAR DIRECCIÓN</h3>
             <form id="formLocation">
                 <input type="text" id="direccion" placeholder="Dirección" required />
                 <input type="number" step="any" id="latitud" placeholder="Latitud" required />
                 <input type="number" step="any" id="longitud" placeholder="Longitud" required />
-                <button type="submit">Actualizar Ubicación</button>
+                <button class="btn-login" type="submit">ACTUALIZAR</button>
             </form>
         </div>
     </div>

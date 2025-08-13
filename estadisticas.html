@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="icon" href="./img/Icon.png" type="image/png">
 </head>
+
 <body class="bodyNav">
     <nav>
         <a href="index.html">
@@ -14,7 +16,9 @@
         </a>
         <div>
             <a id="btnUsuario" style="display: none;">MI PERFIL</a>
-            <a href="#" onclick="history.back(); return false;">MI PERFIL</a>
+            <a href="#" onclick="history.back(); return false;">VOLVER</a>
+            <a href="administrador.html">ADMINISTRAR COLEGIOS</a>
+            <a href="administradorU.html">ADMINISTRAR USUARIOS</a>
             <a href="index.html">CERRAR SESIÓN</a>
         </div>
     </nav>
@@ -83,7 +87,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
         import { firebaseConfig } from './js/firebaseConfig.js';
-        import { getFirestore, collection, getDocs, doc, getDoc } 
+        import { getFirestore, collection, getDocs, doc, getDoc }
             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
         const app = initializeApp(firebaseConfig);
@@ -143,4 +147,5 @@
         });
     </script>
 </body>
+
 </html>

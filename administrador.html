@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Administrador | Directorio Escuelas</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="icon" href="./img/Icon.png" type="image/png" />
+</head>
+
+<body class="bodyNav">
+    <nav>
+        <a href="index.html">
+            <img src="./img/Logo.png" alt="Logo Directorio Escuelas" />
+        </a>
+        <div>
+            <a href="#" onclick="history.back(); return false;">VOLVER</a>
+            <a href="estadisticas.html">ESTADÍSTICAS</a>
+            <a href="administradorU.html">ADMINISTRAR USUARIOS</a>
+            <a href="index.html">CERRAR SESIÓN</a>
+        </div>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+        <div id="datosUsuario">Cargando datos...</div>
+    </div>
+
+    <h2>LISTADO DE COLEGIOS</h2>
+    <div style="margin-bottom: 20px;">
+        <label for="filtroNivel"><strong>Filtrar por nivel:</strong></label>
+        <select id="filtroNivel">
+            <option value="">Todos</option>
+            <option value="Inicial">Inicial</option>
+            <option value="Primaria">Primaria</option>
+            <option value="Primaria Adultos">Primaria de Adultos</option>
+            <option value="Secundaria">Secundaria</option>
+            <option value="Secundaria Adultos">Secundaria de Adultos</option>
+            <option value="Técnica">Técnica</option>
+            <option value="Especial">Especial</option>
+            <option value="Centro Profesional">Centro de Formación Profesional</option>
+            <option value="Educación Superior">Educación Superior</option>
+        </select>
+    </div>
+
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Nivel</th>
+                <th>Dirección</th>
+                <th>Localidad</th>
+                <th>Desfavorabilidad</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaColegios"></tbody>
+    </table>
+
+    <footer>
+        Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos
+        reservados
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { firebaseConfig } from './js/firebaseConfig.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+        import {
+            getFirestore, doc, getDoc, collection, addDoc, getDocs,
+            updateDoc, query, where, orderBy
+        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const datosDiv = document.getElementById('datosUsuario');
+        const tablaBody = document.getElementById('tablaColegios');
+        const filtroNivel = document.getElementById('filtroNivel');
+
+        document.getElementById('btnUsuario').addEventListener('click', () => {
+            window.location.href = 'usuario.html';
+        });
+
+        filtroNivel.addEventListener('change', () => {
+            cargarColegios(filtroNivel.value);
+        });
+
+        async function cargarColegios(nivelFiltro = '') {
+            tablaBody.innerHTML = '';
+            try {
+                let q;
+                if (nivelFiltro) {
+                    q = query(
+                        collection(db, 'escuelas'),
+                        where('nivel', '==', nivelFiltro),
+                        orderBy('nombre')
+                    );
+                } else {
+                    q = query(collection(db, 'escuelas'), orderBy('nombre'));
+                }
+
+                const snapshot = await getDocs(q);
+                snapshot.forEach(docSnap => {
+                    const c = docSnap.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><input value="${c.nombre}" /></td>
+                        <td><input value="${c.nivel}" /></td>
+                        <td><input value="${c.direccion}" /></td>
+                        <td><input value="${c.barrio}" /></td>
+                        <td>
+                          <select>
+                            <option value="" disabled ${!c.desfavorabilidad ? 'selected' : ''}>Seleccionar desfavorabilidad</option>
+                            <option value="SI" ${c.desfavorabilidad === "SI" ? "selected" : ""}>SI</option>
+                            <option value="NO" ${c.desfavorabilidad === "NO" ? "selected" : ""}>NO</option>
+                          </select>
+                        </td>
+                        <td><input value="${c.lat}" type="number" step="any" /></td>
+                        <td><input value="${c.lng}" type="number" step="any" /></td>
+                        <td><button data-id="${docSnap.id}">Guardar</button></td>
+                    `;
+                    tr.querySelector('button').addEventListener('click', async () => {
+                        const inputs = tr.querySelectorAll('input, select');
+                        await updateDoc(doc(db, 'escuelas', docSnap.id), {
+                            nombre: inputs[0].value,
+                            nivel: inputs[1].value,
+                            direccion: inputs[2].value,
+                            barrio: inputs[3].value,
+                            desfavorabilidad: inputs[4].value,
+                            lat: parseFloat(inputs[5].value),
+                            lng: parseFloat(inputs[6].value),
+                        });
+                        alert('Colegio actualizado');
+                    });
+                    tablaBody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Debes crear un índice en Firestore para usar el filtro y el orden alfabético juntos. Revisa la consola para más info.');
+            }
+        }
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const docRef = doc(db, 'usuarios', user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
+                cargarColegios();
+            } else {
+                datosDiv.textContent = 'No se encontraron datos del usuario.';
+            }
+        });
+    </script>
+</body>
+
+</html>

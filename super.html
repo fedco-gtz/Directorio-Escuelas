@@ -17,7 +17,8 @@
         <div>
             <a id="btnUsuario">MI PERFIL</a>
             <a href="estadisticas.html">ESTADÍSTICAS</a>
-            <a href="administrador.html">ADMINISTRAR USUARIOS</a>
+            <a href="administrador.html">ADMINISTRAR COLEGIOS</a>
+            <a href="administradorU.html">ADMINISTRAR USUARIOS</a>
             <a href="index.html">CERRAR SESIÓN</a>
         </div>
     </nav>
@@ -43,6 +44,11 @@
         </select>
         <input type="text" id="direccion" placeholder="Dirección" required />
         <input type="text" id="barrio" placeholder="Localidad" required />
+        <select id="desfavorabilidad" required>
+            <option value="" disabled selected>Seleccionar desfavorabilidad</option>
+            <option value="SI">SI</option>
+            <option value="NO">NO</option>
+        </select>
         <input type="number" id="lat" placeholder="Latitud" step="any" required />
         <input type="number" id="lng" placeholder="Longitud" step="any" required />
         <button class="btn-login" type="submit">AGREGAR</button>
@@ -127,10 +133,11 @@
             const nivel = form.nivel.value;
             const direccion = form.direccion.value.trim();
             const barrio = form.barrio.value.trim();
+            const desfavorabilidad = form.desfavorabilidad.value;
             const lat = parseFloat(form.lat.value);
             const lng = parseFloat(form.lng.value);
 
-            if (!nombre || !nivel || !direccion || !barrio || isNaN(lat) || isNaN(lng)) {
+            if (!nombre || !nivel || !direccion || !barrio || isNaN(lat) || isNaN(lng) || !desfavorabilidad) {
                 mostrarPopup('Completa todos los campos correctamente');
                 return;
             }
@@ -143,6 +150,7 @@
                     barrio,
                     lat,
                     lng,
+                    desfavorabilidad,
                     creadoPor: auth.currentUser.uid,
                     creadoEn: new Date()
                 });

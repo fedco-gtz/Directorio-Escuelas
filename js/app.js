@@ -29,7 +29,7 @@ function renderizar(datos) {
   datos.forEach(e => {
     const card = document.createElement('div');
     card.className = 'school';
-    card.innerHTML = `<strong>${e.nombre}</strong><div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>`;
+card.innerHTML = `<strong>${e.nombre}</strong> · <strong style="background-color: red; color: white; padding: 3px 3px; border-radius: 5px;"> DESFAVORABILIDAD: ${e.desfavorabilidad || ''} </strong><div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>`;
     lista.appendChild(card);
 
     if (e.lat && e.lng) {

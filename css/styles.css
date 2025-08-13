@@ -264,11 +264,11 @@ footer a:hover {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
-    gap: 15px;
     margin: 10px auto;
     max-width: auto;
     overflow-x: auto;
     min-width: auto;
+    margin-top: 27px;
 }
 
 .card-nivel {

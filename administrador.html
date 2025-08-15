@@ -43,7 +43,6 @@
             cursor: pointer;
         }
 
-        /* Para pantallas chicas, hacer que sea desplazable horizontalmente */
         @media screen and (max-width: 768px) {
             table {
                 display: block;
@@ -102,7 +101,7 @@
                 <th>Dirección</th>
                 <th>Localidad</th>
                 <th>Desfavorabilidad</th>
-                <th>Jornada Completa</th>
+                <th>Jornada</th>
                 <th>Latitud</th>
                 <th>Longitud</th>
                 <th>Acciones</th>
@@ -173,9 +172,10 @@
                         </td>
                         <td>
                           <select>
-                            <option value="" disabled ${!c.jornadaCompleta ? 'selected' : ''}>Seleccionar jornada completa</option>
-                            <option value="SI" ${c.jornadaCompleta === "SI" ? "selected" : ""}>SI</option>
-                            <option value="NO" ${c.jornadaCompleta === "NO" ? "selected" : ""}>NO</option>
+                            <option value="" disabled ${!c.jornadaCompleta ? 'selected' : ''}>Seleccionar jornada</option>
+                            <option value="SI" ${c.jornadaCompleta === "SI" ? "selected" : ""}>COMPLETA</option>
+                            <option value="NI" ${c.jornadaCompleta === "NI" ? "selected" : ""}>EXTENDIDA</option>
+                            <option value="NO" ${c.jornadaCompleta === "NO" ? "selected" : ""}>NINGUNA</option>
                           </select>
                         </td>
                         <td><input value="${c.lat || ''}" type="number" step="any" /></td>
@@ -200,7 +200,6 @@
                 });
             } catch (error) {
                 console.error(error);
-                alert('Debes crear un índice en Firestore para usar el filtro y el orden alfabético juntos. Revisa la consola para más info.');
             }
         }
 

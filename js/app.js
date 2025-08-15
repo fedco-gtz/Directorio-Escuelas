@@ -38,8 +38,12 @@ function renderizar(datos) {
       ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: inline-flex; justify-content: center; align-items: center;">JC</strong>`
       : '';
 
+    const jornaeHTML = (e.jornadaCompleta && e.jornadaCompleta.toUpperCase() === 'NI')
+      ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: inline-flex; justify-content: center; align-items: center;">JE</strong>`
+      : '';
+
     card.innerHTML = `
-      <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML}
+      <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML} ${jornaeHTML}
       <div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>
     `;
 
@@ -59,6 +63,12 @@ ${e.desfavorabilidad === 'SI'
 ${e.jornadaCompleta === 'SI'
             ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">
        JORNADA COMPLETA
+     </strong>`
+            : ''
+          }
+${e.jornadaCompleta === 'NI'
+            ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">
+       JORNADA EXTENDIDA
      </strong>`
             : ''
           }

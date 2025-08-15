@@ -34,8 +34,12 @@ function renderizar(datos) {
       ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: inline-flex; justify-content: center; align-items: center;">D</strong>`
       : '';
 
+    const jornacHTML = (e.jornadaCompleta && e.jornadaCompleta.toUpperCase() === 'SI')
+      ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: inline-flex; justify-content: center; align-items: center;">JC</strong>`
+      : '';
+
     card.innerHTML = `
-      <strong>${e.nombre}</strong> ${desfavHTML}
+      <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML}
       <div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>
     `;
 
@@ -43,16 +47,21 @@ function renderizar(datos) {
 
     if (e.lat && e.lng) {
       const marker = L.marker([e.lat, e.lng])
-.bindPopup(`
+        .bindPopup(`
   <strong>${e.nombre}</strong><br>
   ${e.direccion || ''}<br>
-  ${
-    e.desfavorabilidad === 'SI'
-      ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: inline-flex; justify-content: center; align-items: center;">
-           DESFAVORABILIDAD
-         </strong>`
-      : ''
-  }
+${e.desfavorabilidad === 'SI'
+            ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">
+       DESFAVORABILIDAD
+     </strong>`
+            : ''
+          }
+${e.jornadaCompleta === 'SI'
+            ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">
+       JORNADA COMPLETA
+     </strong>`
+            : ''
+          }
 `);
       markers.addLayer(marker);
     }

@@ -7,6 +7,56 @@
     <title>Administrador | Directorio Escuelas</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="icon" href="./img/Icon.png" type="image/png" />
+    <style>
+        /* Contenedor de la tabla para que no se desborde */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+            word-wrap: break-word;
+
+        }
+
+        thead {
+            background-color: #f4f4f4;
+        }
+
+        input,
+        select {
+            width: 90%;
+            box-sizing: border-box;
+            font-size: 13px;
+            padding: 4px;
+            border: none;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Para pantallas chicas, hacer que sea desplazable horizontalmente */
+        @media screen and (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th,
+            td {
+                min-width: 120px;
+            }
+        }
+    </style>
 </head>
 
 <body class="bodyNav">
@@ -52,6 +102,7 @@
                 <th>Dirección</th>
                 <th>Localidad</th>
                 <th>Desfavorabilidad</th>
+                <th>Jornada Completa</th>
                 <th>Latitud</th>
                 <th>Longitud</th>
                 <th>Acciones</th>
@@ -70,7 +121,7 @@
         import { firebaseConfig } from './js/firebaseConfig.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
         import {
-            getFirestore, doc, getDoc, collection, addDoc, getDocs,
+            getFirestore, doc, getDoc, collection, getDocs,
             updateDoc, query, where, orderBy
         } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
@@ -109,10 +160,10 @@
                     const c = docSnap.data();
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td><input value="${c.nombre}" /></td>
-                        <td><input value="${c.nivel}" /></td>
-                        <td><input value="${c.direccion}" /></td>
-                        <td><input value="${c.barrio}" /></td>
+                        <td><input value="${c.nombre || ''}" /></td>
+                        <td><input value="${c.nivel || ''}" /></td>
+                        <td><input value="${c.direccion || ''}" /></td>
+                        <td><input value="${c.barrio || ''}" /></td>
                         <td>
                           <select>
                             <option value="" disabled ${!c.desfavorabilidad ? 'selected' : ''}>Seleccionar desfavorabilidad</option>
@@ -120,8 +171,15 @@
                             <option value="NO" ${c.desfavorabilidad === "NO" ? "selected" : ""}>NO</option>
                           </select>
                         </td>
-                        <td><input value="${c.lat}" type="number" step="any" /></td>
-                        <td><input value="${c.lng}" type="number" step="any" /></td>
+                        <td>
+                          <select>
+                            <option value="" disabled ${!c.jornadaCompleta ? 'selected' : ''}>Seleccionar jornada completa</option>
+                            <option value="SI" ${c.jornadaCompleta === "SI" ? "selected" : ""}>SI</option>
+                            <option value="NO" ${c.jornadaCompleta === "NO" ? "selected" : ""}>NO</option>
+                          </select>
+                        </td>
+                        <td><input value="${c.lat || ''}" type="number" step="any" /></td>
+                        <td><input value="${c.lng || ''}" type="number" step="any" /></td>
                         <td><button data-id="${docSnap.id}">Guardar</button></td>
                     `;
                     tr.querySelector('button').addEventListener('click', async () => {
@@ -132,8 +190,9 @@
                             direccion: inputs[2].value,
                             barrio: inputs[3].value,
                             desfavorabilidad: inputs[4].value,
-                            lat: parseFloat(inputs[5].value),
-                            lng: parseFloat(inputs[6].value),
+                            jornadaCompleta: inputs[5].value,
+                            lat: parseFloat(inputs[6].value),
+                            lng: parseFloat(inputs[7].value),
                         });
                         alert('Colegio actualizado');
                     });

@@ -54,7 +54,6 @@
             }
         }
 
-        /* Estilo básico del popup */
         .modal {
             display: none;
             position: fixed;
@@ -150,7 +149,6 @@
         reservados
     </footer>
 
-    <!-- Modal para descripción -->
     <div id="descripcionModal" class="modal">
         <div class="modal-content">
             <h3>Agregar Descripción</h3>
@@ -163,183 +161,6 @@
             </div>
         </div>
     </div>
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { firebaseConfig } from './js/firebaseConfig.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import {
-    getFirestore, doc, getDoc, collection, getDocs,
-    updateDoc, setDoc, query, where, orderBy
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const datosDiv = document.getElementById('datosUsuario');
-const tablaBody = document.getElementById('tablaColegios');
-const filtroNivel = document.getElementById('filtroNivel');
-
-const modal = document.getElementById('descripcionModal');
-const telefonoInput = document.getElementById('telefonoInput');
-const emailInput = document.getElementById('emailInput');
-const colectivosInput = document.getElementById('colectivosInput');
-const guardarDescripcionBtn = document.getElementById('guardarDescripcionBtn');
-const cancelarDescripcionBtn = document.getElementById('cancelarDescripcionBtn');
-
-let colegioIdActual = null;
-
-document.getElementById('btnUsuario').addEventListener('click', () => {
-    window.location.href = 'usuario.html';
-});
-
-filtroNivel.addEventListener('change', () => {
-    cargarColegios(filtroNivel.value);
-});
-
-async function abrirModalDescripcion(id) {
-    colegioIdActual = id;
-    try {
-        const descSnap = await getDoc(doc(db, 'escuelas_descripciones', id));
-        if (descSnap.exists()) {
-            const datos = descSnap.data();
-            telefonoInput.value = datos.telefono || '';
-            emailInput.value = datos.email || '';
-            colectivosInput.value = datos.colectivos || '';
-        } else {
-            telefonoInput.value = '';
-            emailInput.value = '';
-            colectivosInput.value = '';
-        }
-    } catch (err) {
-        console.error(err);
-    }
-    modal.style.display = 'flex';
-}
-
-cancelarDescripcionBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-guardarDescripcionBtn.addEventListener('click', async () => {
-    if (!colegioIdActual) return;
-
-    const telefono = telefonoInput.value.trim() || 'SIN DATOS';
-    const email = emailInput.value.trim() || 'SIN DATOS';
-    const colectivos = colectivosInput.value.trim() || 'SIN DATOS';
-
-    try {
-        await setDoc(doc(db, 'escuelas_descripciones', colegioIdActual), {
-            telefono,
-            email,
-            colectivos
-        });
-        alert('Descripción guardada correctamente');
-    } catch (error) {
-        console.error(error);
-        alert('Error al guardar descripción');
-    }
-    modal.style.display = 'none';
-    cargarColegios(filtroNivel.value); // refrescar tabla con el indicador
-});
-
-async function cargarColegios(nivelFiltro = '') {
-    tablaBody.innerHTML = '';
-    try {
-        let q;
-        if (nivelFiltro) {
-            q = query(
-                collection(db, 'escuelas'),
-                where('nivel', '==', nivelFiltro),
-                orderBy('nombre')
-            );
-        } else {
-            q = query(collection(db, 'escuelas'), orderBy('nombre'));
-        }
-
-        const snapshot = await getDocs(q);
-
-        // Pre-cargar todas las descripciones para saber qué escuelas las tienen
-        const descSnapshot = await getDocs(collection(db, 'escuelas_descripciones'));
-        const descIds = new Set(descSnapshot.docs.map(d => d.id));
-
-        snapshot.forEach(docSnap => {
-            const c = docSnap.data();
-            const tieneDesc = descIds.has(docSnap.id);
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><input value="${c.nombre || ''}" /></td>
-                <td><input value="${c.nivel || ''}" /></td>
-                <td><input value="${c.direccion || ''}" /></td>
-                <td><input value="${c.barrio || ''}" /></td>
-                <td>
-                  <select>
-                    <option value="" disabled ${!c.desfavorabilidad ? 'selected' : ''}>Seleccionar desfavorabilidad</option>
-                    <option value="SI" ${c.desfavorabilidad === "SI" ? "selected" : ""}>SI</option>
-                    <option value="NO" ${c.desfavorabilidad === "NO" ? "selected" : ""}>NO</option>
-                  </select>
-                </td>
-                <td>
-                  <select>
-                    <option value="" disabled ${!c.jornadaCompleta ? 'selected' : ''}>Seleccionar jornada</option>
-                    <option value="SI" ${c.jornadaCompleta === "SI" ? "selected" : ""}>COMPLETA</option>
-                    <option value="NI" ${c.jornadaCompleta === "NI" ? "selected" : ""}>EXTENDIDA</option>
-                    <option value="NO" ${c.jornadaCompleta === "NO" ? "selected" : ""}>NINGUNA</option>
-                  </select>
-                </td>
-                <td><input value="${c.lat || ''}" type="number" step="any" /></td>
-                <td><input value="${c.lng || ''}" type="number" step="any" /></td>
-                <td>
-                    <button data-id="${docSnap.id}" class="guardarBtn">Guardar</button>
-                    <button data-id="${docSnap.id}" class="descripcionBtn">
-                        Descripción ${tieneDesc ? '✅' : '❌'}
-                    </button>
-                </td>
-            `;
-
-            tr.querySelector('.guardarBtn').addEventListener('click', async () => {
-                const inputs = tr.querySelectorAll('input, select');
-                await updateDoc(doc(db, 'escuelas', docSnap.id), {
-                    nombre: inputs[0].value,
-                    nivel: inputs[1].value,
-                    direccion: inputs[2].value,
-                    barrio: inputs[3].value,
-                    desfavorabilidad: inputs[4].value,
-                    jornadaCompleta: inputs[5].value,
-                    lat: parseFloat(inputs[6].value),
-                    lng: parseFloat(inputs[7].value),
-                });
-                alert('Colegio actualizado');
-            });
-
-            tr.querySelector('.descripcionBtn').addEventListener('click', () => {
-                abrirModalDescripcion(docSnap.id);
-            });
-
-            tablaBody.appendChild(tr);
-        });
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-onAuthStateChanged(auth, async user => {
-    if (!user) {
-        window.location.href = 'login.html';
-        return;
-    }
-    const docRef = doc(db, 'usuarios', user.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
-        cargarColegios();
-    } else {
-        datosDiv.textContent = 'No se encontraron datos del usuario.';
-    }
-});
-</script>
-    
+    <script type="module" src="./js/appAdministrador.js"></script>    
 </body>
 </html>

@@ -106,6 +106,7 @@ async function cargarColegios(nivelFiltro = '') {
                     <option value="SI" ${c.jornadaCompleta === "SI" ? "selected" : ""}>COMPLETA</option>
                     <option value="NI" ${c.jornadaCompleta === "NI" ? "selected" : ""}>EXTENDIDA</option>
                     <option value="NO" ${c.jornadaCompleta === "NO" ? "selected" : ""}>NINGUNA</option>
+                    <option value="NE" ${c.jornadaCompleta === "NE" ? "selected" : ""}>MUNICIPAL</option>
                   </select>
                 </td>
                 <td><input value="${c.lat || ''}" type="number" step="any" /></td>

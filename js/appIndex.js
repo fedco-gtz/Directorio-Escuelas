@@ -49,9 +49,11 @@ function renderizar(datos) {
       ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px;">JC</strong>` : '';
     const jornaeHTML = (e.jornadaCompleta?.toUpperCase() === 'NI')
       ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px;">JE</strong>` : '';
+    const jornamHTML = (e.jornadaCompleta?.toUpperCase() === 'NE')
+      ? `<strong style="background-color: orange; color: white; padding: 3px; border-radius: 5px;">M</strong>` : '';
 
     card.innerHTML = `
-      <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML} ${jornaeHTML}
+      <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML} ${jornaeHTML} ${jornamHTML}
       <div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>
       <button class="btn-descripcion">+</button>
       <div class="descripcion" style="display:none">
@@ -80,6 +82,7 @@ function renderizar(datos) {
               ${e.desfavorabilidad === 'SI' ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">DESFAVORABILIDAD</strong>` : ''}
               ${e.jornadaCompleta === 'SI' ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA COMPLETA</strong>` : ''}
               ${e.jornadaCompleta === 'NI' ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA EXTENDIDA</strong>` : ''}
+              ${e.jornadaCompleta === 'NE' ? `<strong style="background-color: orange; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">GESTIÓN MUNICIPAL</strong>` : ''}
             `;
             descripcionDiv.dataset.cargado = 'true';
           } catch (err) {
@@ -103,7 +106,8 @@ function renderizar(datos) {
         .bindPopup(`<strong>${e.nombre}</strong><br>${e.direccion || ''}
           ${e.desfavorabilidad === 'SI' ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">DESFAVORABILIDAD</strong>` : ''}
         ${e.jornadaCompleta === 'SI' ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA COMPLETA</strong>` : ''}
-        ${e.jornadaCompleta === 'NI' ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA EXTENDIDA</strong>` : ''}`);
+        ${e.jornadaCompleta === 'NI' ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA EXTENDIDA</strong>` : ''}
+                      ${e.jornadaCompleta === 'NE' ? `<strong style="background-color: orange; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">GESTIÓN MUNICIPAL</strong>` : ''}`);
       markers.addLayer(marker);
     }
   });

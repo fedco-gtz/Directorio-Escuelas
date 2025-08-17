@@ -45,34 +45,42 @@ function renderizar(datos) {
     card.innerHTML = `
       <strong>${e.nombre}</strong> ${desfavHTML} ${jornacHTML} ${jornaeHTML}
       <div class="meta">${e.nivel} · ${e.barrio || e.direccion || ''}</div>
+      <button class="btn-descripcion" style="margin-top:5px;">+</button>
+        <div class="descripcion">
+  ${e.descripcion || 'Sin descripción disponible.'}
+</div>
+      </div>
     `;
+
+    const btnDescripcion = card.querySelector('.btn-descripcion');
+    const descripcionDiv = card.querySelector('.descripcion');
+    btnDescripcion.addEventListener('click', () => {
+      if (descripcionDiv.style.display === 'none') {
+        descripcionDiv.style.display = 'block';
+        btnDescripcion.textContent = '-';
+      } else {
+        descripcionDiv.style.display = 'none';
+        btnDescripcion.textContent = '+';
+      }
+    });
 
     lista.appendChild(card);
 
     if (e.lat && e.lng) {
       const marker = L.marker([e.lat, e.lng])
         .bindPopup(`
-  <strong>${e.nombre}</strong><br>
-  ${e.direccion || ''}<br>
-${e.desfavorabilidad === 'SI'
-            ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">
-       DESFAVORABILIDAD
-     </strong>`
-            : ''
+          <strong>${e.nombre}</strong><br>
+          ${e.direccion || ''}<br>
+          ${e.desfavorabilidad === 'SI'
+            ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">DESFAVORABILIDAD</strong>` : ''
           }
-${e.jornadaCompleta === 'SI'
-            ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">
-       JORNADA COMPLETA
-     </strong>`
-            : ''
+          ${e.jornadaCompleta === 'SI'
+            ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA COMPLETA</strong>` : ''
           }
-${e.jornadaCompleta === 'NI'
-            ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">
-       JORNADA EXTENDIDA
-     </strong>`
-            : ''
+          ${e.jornadaCompleta === 'NI'
+            ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA EXTENDIDA</strong>` : ''
           }
-`);
+        `);
       markers.addLayer(marker);
     }
   });

@@ -55,11 +55,13 @@ select {
 }
 
 .school {
+    position: relative;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid var(--border);
-    margin-bottom: 8px
+    margin-bottom: 8px;
 }
+
 
 .meta {
     font-size: 13px;
@@ -442,4 +444,39 @@ footer a:hover {
 
 #perfilDatos p {
     margin: 6px 0;
+}
+
+.btn-descripcion {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-62%);
+  background-color: #004d99;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-weight: bold;
+  font-size: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-descripcion:hover {
+  background-color: #003366;
+}
+
+.descripcion {
+  display: none;
+  margin-top: 10px;
+  padding-top: 8px;
+  color: #555;
+  border-top: 3px solid #ccc;
+  line-height: 1.4;
+  width: 80%;
+  font-size: 13px;
+  color: var(--muted)
 }

@@ -20,6 +20,7 @@ const emailInput = document.getElementById('emailInput');
 const colectivosInput = document.getElementById('colectivosInput');
 const guardarDescripcionBtn = document.getElementById('guardarDescripcionBtn');
 const cancelarDescripcionBtn = document.getElementById('cancelarDescripcionBtn');
+const popup = document.getElementById('popup');
 
 let colegioIdActual = null;
 
@@ -55,10 +56,10 @@ guardarDescripcionBtn.addEventListener('click', async () => {
     try {
         await setDoc(doc(db, 'escuelas_descripciones', colegioIdActual), descripcion);
         cacheDescripciones.set(colegioIdActual, descripcion);
-        alert('Descripción guardada correctamente');
+        mostrarPopup('DESCRIPCIÓN GUARDADA CORRECTAMENTE');
     } catch (error) {
         console.error(error);
-        alert('Error al guardar descripción');
+        mostrarPopup('ERROR AL GUARDAR LA DESCRIPCIÓN');
     }
 
     modal.style.display = 'none';
@@ -134,8 +135,8 @@ async function cargarColegios(nivelFiltro = '') {
 
                 const index = cacheColegios.findIndex(item => item.id === c.id);
                 if (index >= 0) cacheColegios[index] = { id: c.id, ...cacheColegios[index], nombre: inputs[0].value, nivel: inputs[1].value, direccion: inputs[2].value, barrio: inputs[3].value, desfavorabilidad: inputs[4].value, jornadaCompleta: inputs[5].value, lat: parseFloat(inputs[6].value), lng: parseFloat(inputs[7].value) };
-
-                alert('Colegio actualizado');
+                
+                mostrarPopup('COLEGIO ACTUALIZADO CORRECTAMENTE');
             });
 
             tr.querySelector('.descripcionBtn').addEventListener('click', () => abrirModalDescripcion(c.id));
@@ -162,3 +163,9 @@ onAuthStateChanged(auth, async user => {
     datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
     cargarColegios();
 });
+
+function mostrarPopup(mensaje, duracion = 3000) {
+  popup.textContent = mensaje;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), duracion);
+}

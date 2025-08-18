@@ -24,7 +24,7 @@ async function mostrarEstadisticas() {
 
   const niveles = [
     'Inicial', 'Primaria', 'Secundaria', 'Técnica', 'Especial',
-    'Primaria Adultos', 'Secundaria Adultos', 'Centro Profesional', 'Educación Superior'
+    'Primaria Adultos', 'Secundaria Adultos', 'Centro Profesional', 'Educación Superior', 'Centros Complementarios', 'Otros'
   ];
 
   if (!cacheEscuelas) {
@@ -66,12 +66,12 @@ form.addEventListener('submit', async e => {
 
     if (cacheEscuelas) cacheEscuelas.push(nuevoColegio);
 
-    mostrarPopup('Colegio agregado con éxito');
+    mostrarPopup('COLEGIO AGREGADO CON ÉXITO');
     form.reset();
     mostrarEstadisticas();
   } catch (error) {
-    console.error("Error al agregar colegio:", error);
-    mostrarPopup('Error al agregar colegio');
+
+    mostrarPopup('ERROR AL AGREGAR COLEGIO');
   }
 });
 

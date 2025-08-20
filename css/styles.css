@@ -447,36 +447,84 @@ footer a:hover {
 }
 
 .btn-descripcion {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-62%);
-  background-color: #004d99;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-weight: bold;
-  font-size: 32px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-62%);
+    background-color: #004d99;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-weight: bold;
+    font-size: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-descripcion:hover {
-  background-color: #003366;
+    background-color: #003366;
 }
 
 .descripcion {
-  display: none;
-  margin-top: 10px;
-  padding-top: 8px;
-  color: #555;
-  border-top: 3px solid #ccc;
-  line-height: 1.4;
-  width: 80%;
-  font-size: 13px;
-  color: var(--muted)
+    display: none;
+    margin-top: 10px;
+    padding-top: 8px;
+    color: #555;
+    border-top: 3px solid #ccc;
+    line-height: 1.4;
+    width: 80%;
+    font-size: 13px;
+    color: var(--muted)
+}
+
+/* ---------- TICKETS ---------- */
+#ticketsContainer {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#ticketsContainer p {
+    text-align: center;
+    color: #000000;
+}
+
+.ticket {
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 6px solid #1abc9c;
+}
+
+.btn-tratar {
+    width: 40%;
+    padding: 8px 12px;
+    background-color: #004d99;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: block;
+    margin: 10px auto;
+    text-transform: uppercase;
+}
+
+.btn-popup {
+    width: auto;
+    padding: 5px;
+    background-color: #004d99;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 3px;
+    cursor: pointer;
 }

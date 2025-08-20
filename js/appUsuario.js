@@ -1,81 +1,51 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
-import { getAuth, onAuthStateChanged, updatePassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { 
+    getAuth, onAuthStateChanged, updatePassword, signOut, sendPasswordResetEmail 
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { 
+    getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc 
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const perfilDatos = document.getElementById('perfilDatos');
 
 function deleteCookie(name) {
     const d = new Date();
     d.setTime(d.getTime() - 1);
-    const expires = "expires=" + d.toUTCString();
-    document.cookie = `${name}=; ${expires}; path=/`;
-    if (location.hostname) {
-        document.cookie = `${name}=; ${expires}; path=/; domain=${location.hostname}`;
-    }
+    document.cookie = `${name}=; expires=${d.toUTCString()}; path=/`;
+    if (location.hostname) document.cookie = `${name}=; expires=${d.toUTCString()}; path=/; domain=${location.hostname}`;
 }
 
 const modales = {
     pass: document.getElementById('modalPass'),
     location: document.getElementById('modalLocation'),
-    profile: document.getElementById('modalProfile')
+    profile: document.getElementById('modalProfile'),
+    ticket: document.getElementById('modalTicket')
 };
-
 const botonesAbrir = {
     pass: document.getElementById('btnOpenPass'),
     location: document.getElementById('btnOpenLocation'),
-    profile: document.getElementById('btnOpenProfile')
+    profile: document.getElementById('btnOpenProfile'),
+    ticket: document.getElementById('btnOpenTicket')
 };
-
 const botonesCerrar = {
     pass: document.getElementById('closePass'),
     location: document.getElementById('closeLocation'),
-    profile: document.getElementById('closeProfile')
+    profile: document.getElementById('closeProfile'),
+    ticket: document.getElementById('closeTicket')
 };
-
-Object.keys(botonesAbrir).forEach(key =>
-    botonesAbrir[key].addEventListener('click', () => modales[key].classList.add('active'))
-);
-Object.keys(botonesCerrar).forEach(key =>
-    botonesCerrar[key].addEventListener('click', () => modales[key].classList.remove('active'))
-);
-window.addEventListener('click', e => {
-    Object.values(modales).forEach(modal => {
-        if (e.target === modal) modal.classList.remove('active');
-    });
-});
-
-const calcularDistanciaKm = (lat1, lon1, lat2, lon2) => {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-};
-
-async function obtenerEscuelasCercanas(latUser, lngUser, radioKm = 2) {
-    const snapshot = await getDocs(collection(db, 'escuelas'));
-    return snapshot.docs
-        .map(doc => {
-            const d = doc.data();
-            if (d.lat != null && d.lng != null) {
-                const distancia = calcularDistanciaKm(latUser, lngUser, d.lat, d.lng);
-                if (distancia <= radioKm) return { id: doc.id, nombre: d.nombre || 'Sin nombre', direccion: d.direccion || 'Sin dirección', distancia: distancia.toFixed(2) };
-            }
-        })
-        .filter(Boolean);
-}
+Object.keys(botonesAbrir).forEach(k => botonesAbrir[k].addEventListener('click', () => modales[k].classList.add('active')));
+Object.keys(botonesCerrar).forEach(k => botonesCerrar[k].addEventListener('click', () => modales[k].classList.remove('active')));
+window.addEventListener('click', e => Object.values(modales).forEach(m => { if (e.target === m) m.classList.remove('active'); }));
 
 onAuthStateChanged(auth, async user => {
     if (!user) return window.location.href = 'login.html';
     try {
         const docSnap = await getDoc(doc(db, 'usuarios', user.uid));
         if (!docSnap.exists()) return perfilDatos.innerHTML = '<p>No se encontraron datos de usuario.</p>';
-
         const data = docSnap.data();
         const rolTexto = data.rol === 1 ? 'Usuario' : data.rol === 2 ? 'Administrador' : 'Superadministrador';
 
@@ -85,61 +55,24 @@ onAuthStateChanged(auth, async user => {
             <p><strong>Rol:</strong> ${rolTexto}</p>
             <p><strong>Dirección:</strong> ${data.direccion || 'No registrada'}</p>
         `;
-
         ['nombre', 'genero', 'direccion'].forEach(id => { if (data[id]) document.getElementById(id).value = data[id]; });
-        if (data.coordenadas) {
-            document.getElementById('latitud').value = data.coordenadas.lat;
-            document.getElementById('longitud').value = data.coordenadas.lng;
 
-            const escuelas = await obtenerEscuelasCercanas(data.coordenadas.lat, data.coordenadas.lng);
-            const html = escuelas.length
-                ? `<h3>Escuelas cercanas en un radio de 2 km:</h3><ul>${escuelas.map(e => `<li><strong>${e.nombre}</strong> - ${e.direccion} (${e.distancia} km)</li>`).join('')}</ul>`
-                : '<p>No hay escuelas cercanas en un radio de 2 km.</p>';
-            perfilDatos.insertAdjacentHTML('beforeend', html);
-        }
+    } catch (err) { console.error(err); perfilDatos.innerHTML = '<p>Error cargando datos de usuario.</p>'; }
 
-    } catch (error) {
-        console.error('Error al cargar datos del usuario:', error);
-        perfilDatos.innerHTML = '<p>Error cargando datos de usuario.</p>';
-    }
+    actualizarResumenTickets();
 });
 
 document.getElementById('formPassword').addEventListener('submit', async e => {
     e.preventDefault();
     const newPass = document.getElementById('newPassword').value;
     if (!newPass) return alert('Ingresa una nueva contraseña');
-    try {
-        await updatePassword(auth.currentUser, newPass);
-        alert('Contraseña actualizada correctamente');
-        e.target.reset();
-        modales.pass.classList.remove('active');
-    } catch (error) {
-        alert('Error al cambiar contraseña: ' + error.message);
-    }
-});
-
-document.getElementById('formLocation').addEventListener('submit', async e => {
-    e.preventDefault();
-    const direccion = document.getElementById('direccion').value.trim();
-    const lat = parseFloat(document.getElementById('latitud').value);
-    const lng = parseFloat(document.getElementById('longitud').value);
-    if (!direccion || isNaN(lat) || isNaN(lng)) return alert('Por favor completa todos los campos correctamente.');
-
-    try {
-        await updateDoc(doc(db, 'usuarios', auth.currentUser.uid), { direccion, coordenadas: { lat, lng } });
-        alert('Ubicación actualizada correctamente');
-        modales.location.classList.remove('active');
-        perfilDatos.querySelector('p:nth-child(4)').textContent = `Dirección: ${direccion}`;
-        if (data.coordenadas) {
-            const escuelas = await obtenerEscuelasCercanas(lat, lng);
-            perfilDatos.querySelector('ul')?.remove();
-            const html = escuelas.length
-                ? `<h3>Escuelas cercanas en un radio de 2 km:</h3><ul>${escuelas.map(e => `<li><strong>${e.nombre}</strong> - ${e.direccion} (${e.distancia} km)</li>`).join('')}</ul>`
-                : '<p>No hay escuelas cercanas en un radio de 2 km.</p>';
-            perfilDatos.insertAdjacentHTML('beforeend', html);
-        }
-    } catch (error) {
-        alert('Error al actualizar ubicación: ' + error.message);
+    try { 
+        await updatePassword(auth.currentUser, newPass); 
+        alert('Contraseña actualizada correctamente'); 
+        e.target.reset(); 
+        modales.pass.classList.remove('active'); 
+    } catch (err) { 
+        alert('Error al cambiar contraseña: ' + err.message); 
     }
 });
 
@@ -148,28 +81,81 @@ document.getElementById('formProfile').addEventListener('submit', async e => {
     const nombre = document.getElementById('nombre').value.trim();
     const genero = document.getElementById('genero').value;
     if (!nombre || !genero) return alert('Por favor completa todos los campos.');
-
-    try {
-        await updateDoc(doc(db, 'usuarios', auth.currentUser.uid), { nombre, genero });
-        alert('Datos actualizados correctamente');
-        modales.profile.classList.remove('active');
+    try { 
+        await updateDoc(doc(db, 'usuarios', auth.currentUser.uid), { nombre, genero }); 
+        alert('Datos actualizados correctamente'); 
+        modales.profile.classList.remove('active'); 
         perfilDatos.querySelector('p:nth-child(1)').innerHTML = `<strong>Nombre:</strong> ${nombre}`;
-    } catch (error) {
-        alert('Error al actualizar datos: ' + error.message);
+    } catch (err) { 
+        alert('Error al actualizar datos: ' + err.message); 
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const btnCerrar = document.getElementById("cerrarSesion");
-    if (btnCerrar) {
-        btnCerrar.addEventListener("click", async () => {
-            try {
-                await signOut(auth);
-                deleteCookie("sesionActiva");
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-            }
-        });
+document.getElementById('cerrarSesion').addEventListener('click', async () => {
+    try { 
+        await signOut(auth); 
+        deleteCookie('sesionActiva'); 
+        window.location.href = 'index.html'; 
+    } catch (err) { 
+        console.error('Error al cerrar sesión:', err); 
     }
 });
+
+async function generarIDTicket() {
+    const snapshot = await getDocs(collection(db, 'tickets'));
+    if (snapshot.empty) return 1;
+    const ids = snapshot.docs.map(doc => doc.data().id);
+    return Math.max(...ids) + 1;
+}
+
+document.getElementById('formTicket').addEventListener('submit', async e => {
+    e.preventDefault();
+    const accion = document.getElementById('accionTicket').value;
+    if (!accion) return alert('Selecciona una acción');
+    try {
+        const ticketID = await generarIDTicket();
+        await setDoc(doc(db, 'tickets', ticketID.toString()), {
+            id: ticketID,
+            usuarioUID: auth.currentUser.uid,
+            accion,
+            estado: 'PENDIENTE DE RESOLUCION',
+            fecha: new Date()
+        });
+
+        if (accion === 'recuperarContraseña') {
+            await sendPasswordResetEmail(auth, auth.currentUser.email);
+            alert('Ticket generado y correo de recuperación enviado.');
+        } else { 
+            alert('Ticket generado correctamente.'); 
+        }
+
+        modales.ticket.classList.remove('active');
+        e.target.reset();
+
+        actualizarResumenTickets();
+
+    } catch (err) { 
+        console.error('Error generando ticket:', err); 
+        alert('Error al generar el ticket: ' + err.message);
+    }
+});
+
+export async function actualizarResumenTickets() {
+    if (!auth.currentUser) return;
+    try {
+        const ticketsSnapshot = await getDocs(collection(db, 'tickets'));
+        const ticketsUsuario = ticketsSnapshot.docs
+            .map(doc => doc.data())
+            .filter(ticket => ticket.usuarioUID === auth.currentUser.uid);
+
+        const total = ticketsUsuario.length;
+        const resueltos = ticketsUsuario.filter(t => t.estado.toUpperCase() === 'RESUELTO').length;
+        const pendientes = ticketsUsuario.filter(t => t.estado.toUpperCase() === 'PENDIENTE DE RESOLUCION').length;
+
+        document.getElementById("totalTickets").textContent = total;
+        document.getElementById("ticketsResueltos").textContent = resueltos;
+        document.getElementById("ticketsPendientes").textContent = pendientes;
+    } catch (err) { 
+        console.error("Error al actualizar resumen de tickets:", err); 
+    }
+}

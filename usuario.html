@@ -7,6 +7,15 @@
     <title>Mi Perfil | Directorio Escuelas</title>
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="icon" href="./img/Icon.png" type="image/png">
+    <style>
+        .ticket-resumen {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            width: fit-content;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body class="bodyNav">
@@ -16,6 +25,7 @@
         </a>
         <div>
             <a href="#" onclick="history.back(); return false;">VOLVER</a>
+            <a id="btnOpenTicket">GENERAR TICKET</a>
             <a id="cerrarSesion">CERRAR SESIÓN</a>
         </div>
     </nav>
@@ -26,6 +36,13 @@
     <button class="btn-login" id="btnOpenProfile">MODIFICAR DATOS</button>
     <button class="btn-login" id="btnOpenLocation">ACTUALIZAR DIRECCIÓN</button>
     <button class="btn-login" id="btnOpenPass">CAMBIAR CONTRASEÑA</button>
+
+    <div id="ticketResumen" class="ticket-resumen">
+        <p>Total de tickets generados: <span id="totalTickets">0</span></p>
+        <p>Resueltos: <span id="ticketsResueltos">0</span></p>
+        <p>Pendientes: <span id="ticketsPendientes">0</span></p>
+    </div>
+
 
     <div class="modal" id="modalPass" role="dialog" aria-modal="true" aria-labelledby="modalPassTitle">
         <div class="modal-contenido">
@@ -64,6 +81,23 @@
                     <option value="X">NO BINARIO</option>
                 </select>
                 <button class="btn-login" type="submit">ACTUALIZAR</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modalTicket" role="dialog" aria-modal="true" aria-labelledby="modalTicketTitle">
+        <div class="modal-contenido">
+            <span class="cerrar" id="closeTicket" aria-label="Cerrar modal ticket">&times;</span>
+            <h3 id="modalTicketTitle">GENERAR TICKET</h3>
+            <form id="formTicket">
+                <select id="accionTicket" required>
+                    <option value="" disabled selected>SELECCIONA EL MOTIVO DEL TICKET</option>
+                    <option value="datosColegio">AGREGAR, ELIMINAR O MODIFICAR DATOS DE COLEGIO</option>
+                    <option value="cambioRol">SOLICITAR CAMBIO DE ROL</option>
+                    <option value="recuperarContraseña">SOLICITAR RECUPERAR CONTRASEÑA</option>
+                    <option value="eliminarCuenta">SOLICITAR ELIMINAR CUENTA</option>
+                </select>
+                <button type="submit">GENERAR</button>
             </form>
         </div>
     </div>

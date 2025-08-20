@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador de Tickets | Directorio Escuelas</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" href="./img/Icon.png" type="image/png">
+</head>
+
+<body class="bodyNav">
+
+    <nav>
+        <a href="index.html"><img src="./img/Logo.png" alt="Logo Directorio Escuelas" /></a>
+        <div>
+            <a href="#" onclick="history.back(); return false;">VOLVER</a>
+            <a id="cerrarSesion">CERRAR SESIÓN</a>
+        </div>
+    </nav>
+
+    <h2>TICKETS PENDIENTES DE RESOLUCIÓN</h2>
+    <div id="ticketsContainer">
+        <p>Cargando tickets...</p>
+    </div>
+
+    <div class="modal" id="modalEliminarCuenta">
+        <div class="modal-contenido">
+            <span class="cerrar" data-modal="modalEliminarCuenta">&times;</span>
+            <h3>ELIMINAR CUENTA</h3>
+            <p>¿Estás seguro de que quieres eliminar esta cuenta?</p>
+            <button class="btn-popup" id="confirmEliminar">ELIMINAR</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modalRecuperar">
+        <div class="modal-contenido">
+            <span class="cerrar" data-modal="modalRecuperar">&times;</span>
+            <h3>RECUPERACION DE CONTRASEÑA</h3>
+            <p>Se enviará un correo de recuperación al usuario.</p>
+            <button class="btn-popup" id="confirmRecuperar">ENVIAR CORREO</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modalCambioRol">
+        <div class="modal-contenido">
+            <span class="cerrar" data-modal="modalCambioRol">&times;</span>
+            <h3>ACTUALIZAR ROL</h3>
+            <select id="nuevoRol">
+                <option value="">NUEVO ROL</option>
+                <option value="1">USUARIO</option>
+                <option value="2">ADMINISTRADOR</option>
+                <option value="3">SUPERADMINISTRADOR</option>
+            </select>
+            <button class="btn-popup" id="confirmCambioRol">ACTUALIZAR</button>
+        </div>
+    </div>
+
+    <script type="module" src="./js/appAdministradorU.js"></script>
+</body>
+
+</html>

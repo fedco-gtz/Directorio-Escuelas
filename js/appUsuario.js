@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
-import { getAuth, onAuthStateChanged, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, updatePassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
@@ -8,6 +8,16 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const perfilDatos = document.getElementById('perfilDatos');
+
+function deleteCookie(name) {
+    const d = new Date();
+    d.setTime(d.getTime() - 1);
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = `${name}=; ${expires}; path=/`;
+    if (location.hostname) {
+        document.cookie = `${name}=; ${expires}; path=/; domain=${location.hostname}`;
+    }
+}
 
 const modales = {
     pass: document.getElementById('modalPass'),
@@ -146,5 +156,20 @@ document.getElementById('formProfile').addEventListener('submit', async e => {
         perfilDatos.querySelector('p:nth-child(1)').innerHTML = `<strong>Nombre:</strong> ${nombre}`;
     } catch (error) {
         alert('Error al actualizar datos: ' + error.message);
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCerrar = document.getElementById("cerrarSesion");
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                deleteCookie("sesionActiva");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
     }
 });

@@ -16,7 +16,7 @@
         </a>
         <div>
             <a href="#" onclick="history.back(); return false;">VOLVER</a>
-            <a href="index.html">CERRAR SESIÓN</a>
+            <a id="cerrarSesion">CERRAR SESIÓN</a>
         </div>
     </nav>
 
@@ -27,7 +27,6 @@
     <button class="btn-login" id="btnOpenLocation">ACTUALIZAR DIRECCIÓN</button>
     <button class="btn-login" id="btnOpenPass">CAMBIAR CONTRASEÑA</button>
 
-    <!-- Modal para cambiar contraseña -->
     <div class="modal" id="modalPass" role="dialog" aria-modal="true" aria-labelledby="modalPassTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closePass" aria-label="Cerrar modal contraseña">&times;</span>
@@ -39,7 +38,6 @@
         </div>
     </div>
 
-    <!-- Modal para actualizar dirección -->
     <div class="modal" id="modalLocation" role="dialog" aria-modal="true" aria-labelledby="modalLocationTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closeLocation" aria-label="Cerrar modal ubicación">&times;</span>
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    <!-- Modal para modificar nombre y género -->
     <div class="modal" id="modalProfile" role="dialog" aria-modal="true" aria-labelledby="modalProfileTitle">
         <div class="modal-contenido">
             <span class="cerrar" id="closeProfile" aria-label="Cerrar modal datos">&times;</span>

@@ -1,9 +1,9 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
     getFirestore, doc, getDoc, collection, getDocs,
-    updateDoc, setDoc, query, where, orderBy
+    updateDoc, setDoc, query, orderBy
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
@@ -23,48 +23,66 @@ const cancelarDescripcionBtn = document.getElementById('cancelarDescripcionBtn')
 const popup = document.getElementById('popup');
 
 let colegioIdActual = null;
-
 let cacheDescripciones = new Map();
 let cacheColegios = [];
 
-document.getElementById('btnUsuario').addEventListener('click', () => {
-    window.location.href = 'usuario.html';
+function deleteCookie(name) {
+    const d = new Date();
+    d.setTime(d.getTime() - 1);
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = `${name}=; ${expires}; path=/`;
+    if (location.hostname) {
+        document.cookie = `${name}=; ${expires}; path=/; domain=${location.hostname}`;
+    }
+}
+
+function getCookie(name) {
+    const cname = name + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let c of ca) {
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        if (c.indexOf(cname) === 0) return c.substring(cname.length, c.length);
+    }
+    return "";
+}
+
+if (!getCookie("sesionActiva")) {
+    window.location.href = "login.html";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCerrar = document.getElementById("cerrarSesion");
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                deleteCookie("sesionActiva");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+    }
+});
+
+onAuthStateChanged(auth, async user => {
+    if (!user) return window.location.href = 'login.html';
+
+    const docRef = doc(db, 'usuarios', user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+        datosDiv.textContent = 'No se encontraron datos del usuario.';
+        return;
+    }
+
+    const data = docSnap.data();
+    datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
+    cargarColegios();
 });
 
 filtroNivel.addEventListener('change', () => cargarColegios(filtroNivel.value));
-
-async function abrirModalDescripcion(id) {
-    colegioIdActual = id;
-    const datos = cacheDescripciones.get(id) || {};
-    telefonoInput.value = datos.telefono || '';
-    emailInput.value = datos.email || '';
-    colectivosInput.value = datos.colectivos || '';
-    modal.style.display = 'flex';
-}
-
-cancelarDescripcionBtn.addEventListener('click', () => modal.style.display = 'none');
-
-guardarDescripcionBtn.addEventListener('click', async () => {
-    if (!colegioIdActual) return;
-
-    const descripcion = {
-        telefono: telefonoInput.value.trim() || 'SIN DATOS',
-        email: emailInput.value.trim() || 'SIN DATOS',
-        colectivos: colectivosInput.value.trim() || 'SIN DATOS'
-    };
-
-    try {
-        await setDoc(doc(db, 'escuelas_descripciones', colegioIdActual), descripcion);
-        cacheDescripciones.set(colegioIdActual, descripcion);
-        mostrarPopup('DESCRIPCIÓN GUARDADA CORRECTAMENTE');
-    } catch (error) {
-        console.error(error);
-        mostrarPopup('ERROR AL GUARDAR LA DESCRIPCIÓN');
-    }
-
-    modal.style.display = 'none';
-    cargarColegios(filtroNivel.value);
-});
 
 async function cargarColegios(nivelFiltro = '') {
     tablaBody.innerHTML = '';
@@ -134,7 +152,7 @@ async function cargarColegios(nivelFiltro = '') {
                 });
 
                 const index = cacheColegios.findIndex(item => item.id === c.id);
-                if (index >= 0) cacheColegios[index] = { id: c.id, ...cacheColegios[index], nombre: inputs[0].value, nivel: inputs[1].value, direccion: inputs[2].value, barrio: inputs[3].value, desfavorabilidad: inputs[4].value, jornadaCompleta: inputs[5].value, lat: parseFloat(inputs[6].value), lng: parseFloat(inputs[7].value) };
+                if (index >= 0) cacheColegios[index] = { ...cacheColegios[index], nombre: inputs[0].value, nivel: inputs[1].value, direccion: inputs[2].value, barrio: inputs[3].value, desfavorabilidad: inputs[4].value, jornadaCompleta: inputs[5].value, lat: parseFloat(inputs[6].value), lng: parseFloat(inputs[7].value) };
                 
                 mostrarPopup('COLEGIO ACTUALIZADO CORRECTAMENTE');
             });
@@ -148,24 +166,41 @@ async function cargarColegios(nivelFiltro = '') {
     }
 }
 
-onAuthStateChanged(auth, async user => {
-    if (!user) return window.location.href = 'login.html';
+async function abrirModalDescripcion(id) {
+    colegioIdActual = id;
+    const datos = cacheDescripciones.get(id) || {};
+    telefonoInput.value = datos.telefono || '';
+    emailInput.value = datos.email || '';
+    colectivosInput.value = datos.colectivos || '';
+    modal.style.display = 'flex';
+}
 
-    const docRef = doc(db, 'usuarios', user.uid);
-    const docSnap = await getDoc(docRef);
+cancelarDescripcionBtn.addEventListener('click', () => modal.style.display = 'none');
 
-    if (!docSnap.exists()) {
-        datosDiv.textContent = 'No se encontraron datos del usuario.';
-        return;
+guardarDescripcionBtn.addEventListener('click', async () => {
+    if (!colegioIdActual) return;
+
+    const descripcion = {
+        telefono: telefonoInput.value.trim() || 'SIN DATOS',
+        email: emailInput.value.trim() || 'SIN DATOS',
+        colectivos: colectivosInput.value.trim() || 'SIN DATOS'
+    };
+
+    try {
+        await setDoc(doc(db, 'escuelas_descripciones', colegioIdActual), descripcion);
+        cacheDescripciones.set(colegioIdActual, descripcion);
+        mostrarPopup('DESCRIPCIÓN GUARDADA CORRECTAMENTE');
+    } catch (error) {
+        console.error(error);
+        mostrarPopup('ERROR AL GUARDAR LA DESCRIPCIÓN');
     }
 
-    const data = docSnap.data();
-    datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
-    cargarColegios();
+    modal.style.display = 'none';
+    cargarColegios(filtroNivel.value);
 });
 
 function mostrarPopup(mensaje, duracion = 3000) {
-  popup.textContent = mensaje;
-  popup.classList.add('show');
-  setTimeout(() => popup.classList.remove('show'), duracion);
+    popup.textContent = mensaje;
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), duracion);
 }

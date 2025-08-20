@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
@@ -14,6 +14,16 @@ const btnUsuario = document.getElementById('btnUsuario');
 const popup = document.getElementById('popup');
 
 let cacheEscuelas = null;
+
+function deleteCookie(name) {
+    const d = new Date();
+    d.setTime(d.getTime() - 1);
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = `${name}=; ${expires}; path=/`;
+    if (location.hostname) {
+        document.cookie = `${name}=; ${expires}; path=/; domain=${location.hostname}`;
+    }
+}
 
 btnUsuario.addEventListener('click', () => {
   window.location.href = 'usuario.html';
@@ -70,7 +80,7 @@ form.addEventListener('submit', async e => {
     form.reset();
     mostrarEstadisticas();
   } catch (error) {
-
+    console.error(error);
     mostrarPopup('ERROR AL AGREGAR COLEGIO');
   }
 });
@@ -96,4 +106,19 @@ onAuthStateChanged(auth, async user => {
   datosDiv.innerHTML = `<p><strong>${data.nombre || ''}</strong></p>`;
 
   await mostrarEstadisticas();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCerrar = document.getElementById("cerrarSesion");
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                deleteCookie("sesionActiva");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+    }
 });

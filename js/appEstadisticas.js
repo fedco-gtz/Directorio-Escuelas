@@ -1,9 +1,21 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+function deleteCookie(name) {
+    const d = new Date();
+    d.setTime(d.getTime() - 1);
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = `${name}=; ${expires}; path=/`;
+    if (location.hostname) {
+        document.cookie = `${name}=; ${expires}; path=/; domain=${location.hostname}`;
+    }
+}
 
 async function cargarEstadisticas() {
     try {
@@ -19,14 +31,16 @@ async function cargarEstadisticas() {
 
         const localidadesLista = document.getElementById("localidades-lista");
         localidadesLista.innerHTML = "";
-        Array.from(localidadesCount.entries()).sort((a, b) => a[0].localeCompare(b[0])).forEach(([loc, count]) => {
-            const li = document.createElement("li");
-            li.textContent = loc;
-            const spanCount = document.createElement("span");
-            spanCount.textContent = count;
-            li.appendChild(spanCount);
-            localidadesLista.appendChild(li);
-        });
+        Array.from(localidadesCount.entries())
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .forEach(([loc, count]) => {
+                const li = document.createElement("li");
+                li.textContent = loc;
+                const spanCount = document.createElement("span");
+                spanCount.textContent = count;
+                li.appendChild(spanCount);
+                localidadesLista.appendChild(li);
+            });
 
         const visitasDoc = await getDoc(doc(db, "estadisticas", "visitas"));
         document.getElementById("visitasCount").textContent = visitasDoc.exists() ? visitasDoc.data().cantidad || 0 : 0;
@@ -66,3 +80,18 @@ async function cargarEstadisticas() {
 }
 
 cargarEstadisticas();
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCerrar = document.getElementById("cerrarSesion");
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                deleteCookie("sesionActiva");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+    }
+});

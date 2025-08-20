@@ -103,11 +103,7 @@ function renderizar(datos) {
 
     if (e.lat && e.lng) {
       const marker = L.marker([e.lat, e.lng])
-        .bindPopup(`<strong>${e.nombre}</strong><br>${e.direccion || ''}
-          ${e.desfavorabilidad === 'SI' ? `<strong style="background-color: red; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center; margin-bottom: 2px;">DESFAVORABILIDAD</strong>` : ''}
-        ${e.jornadaCompleta === 'SI' ? `<strong style="background-color: green; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA COMPLETA</strong>` : ''}
-        ${e.jornadaCompleta === 'NI' ? `<strong style="background-color: grey; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">JORNADA EXTENDIDA</strong>` : ''}
-                      ${e.jornadaCompleta === 'NE' ? `<strong style="background-color: orange; color: white; padding: 3px; border-radius: 5px; display: block; text-align: center;">GESTIÓN MUNICIPAL</strong>` : ''}`);
+        .bindPopup(`<strong>${e.nombre}</strong><br>${e.direccion || ''}`);
       markers.addLayer(marker);
     }
   });
@@ -145,3 +141,54 @@ btnBuscar.addEventListener('click', buscarEscuelas);
   const datos = await obtenerEscuelas('', '');
   renderizar(datos);
 })();
+
+function getCookie(name) {
+  const cname = name + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let c of ca) {
+    while (c.charAt(0) === ' ') c = c.substring(1);
+    if (c.indexOf(cname) === 0) {
+      return c.substring(cname.length, c.length);
+    }
+  }
+  return "";
+}
+
+async function verificarSesion() {
+  const uid = getCookie("sesionActiva");
+  const btnLogin = document.getElementById("btnLogin");
+  const btnCuenta = document.getElementById("btnCuenta");
+
+  if (uid) {
+    try {
+      const userDoc = await getDoc(doc(db, "usuarios", uid));
+      if (userDoc.exists()) {
+        const rol = Number(userDoc.data().rol);
+        const rutas = { 1: "usuario.html", 2: "perfil.html", 3: "super.html" };
+
+        if (btnLogin) btnLogin.style.display = "none";
+        if (btnCuenta) {
+          btnCuenta.style.display = "block";
+          btnCuenta.onclick = () => window.location.href = rutas[rol] || "usuario.html";
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar sesión:", error);
+    }
+  } else {
+    if (btnLogin) {
+      btnLogin.style.display = "block";
+      btnLogin.textContent = "INICIAR SESIÓN";
+      btnLogin.onclick = () => window.location.href = "login.html";
+    }
+    if (btnCuenta) btnCuenta.style.display = "none";
+  }
+
+  const pagina = location.pathname.split("/").pop();
+  if (["usuario.html", "perfil.html", "super.html"].includes(pagina) && !uid) {
+    window.location.href = "login.html";
+  }
+}
+
+verificarSesion();

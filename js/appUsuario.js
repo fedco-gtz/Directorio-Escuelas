@@ -1,10 +1,10 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { firebaseConfig } from './firebaseConfig.js';
-import { 
-    getAuth, onAuthStateChanged, updatePassword, signOut, sendPasswordResetEmail 
+import {
+    getAuth, onAuthStateChanged, updatePassword, signOut, sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { 
-    getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc 
+import {
+    getFirestore, doc, getDoc, updateDoc, collection, getDocs, setDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
@@ -66,13 +66,13 @@ document.getElementById('formPassword').addEventListener('submit', async e => {
     e.preventDefault();
     const newPass = document.getElementById('newPassword').value;
     if (!newPass) return alert('Ingresa una nueva contraseña');
-    try { 
-        await updatePassword(auth.currentUser, newPass); 
-        alert('Contraseña actualizada correctamente'); 
-        e.target.reset(); 
-        modales.pass.classList.remove('active'); 
-    } catch (err) { 
-        alert('Error al cambiar contraseña: ' + err.message); 
+    try {
+        await updatePassword(auth.currentUser, newPass);
+        alert('Contraseña actualizada correctamente');
+        e.target.reset();
+        modales.pass.classList.remove('active');
+    } catch (err) {
+        alert('Error al cambiar contraseña: ' + err.message);
     }
 });
 
@@ -81,23 +81,23 @@ document.getElementById('formProfile').addEventListener('submit', async e => {
     const nombre = document.getElementById('nombre').value.trim();
     const genero = document.getElementById('genero').value;
     if (!nombre || !genero) return alert('Por favor completa todos los campos.');
-    try { 
-        await updateDoc(doc(db, 'usuarios', auth.currentUser.uid), { nombre, genero }); 
-        alert('Datos actualizados correctamente'); 
-        modales.profile.classList.remove('active'); 
+    try {
+        await updateDoc(doc(db, 'usuarios', auth.currentUser.uid), { nombre, genero });
+        alert('Datos actualizados correctamente');
+        modales.profile.classList.remove('active');
         perfilDatos.querySelector('p:nth-child(1)').innerHTML = `<strong>Nombre:</strong> ${nombre}`;
-    } catch (err) { 
-        alert('Error al actualizar datos: ' + err.message); 
+    } catch (err) {
+        alert('Error al actualizar datos: ' + err.message);
     }
 });
 
 document.getElementById('cerrarSesion').addEventListener('click', async () => {
-    try { 
-        await signOut(auth); 
-        deleteCookie('sesionActiva'); 
-        window.location.href = 'index.html'; 
-    } catch (err) { 
-        console.error('Error al cerrar sesión:', err); 
+    try {
+        await signOut(auth);
+        deleteCookie('sesionActiva');
+        window.location.href = 'index.html';
+    } catch (err) {
+        console.error('Error al cerrar sesión:', err);
     }
 });
 
@@ -108,16 +108,37 @@ async function generarIDTicket() {
     return Math.max(...ids) + 1;
 }
 
+const accionTicket = document.getElementById('accionTicket');
+const campoDatosColegio = document.getElementById('campoDatosColegio');
+const detalleColegio = document.getElementById('detalleColegio');
+
+accionTicket.addEventListener('change', () => {
+    if (accionTicket.value === 'datosColegio') {
+        campoDatosColegio.style.display = 'block';
+    } else {
+        campoDatosColegio.style.display = 'none';
+        detalleColegio.value = "";
+    }
+});
+
 document.getElementById('formTicket').addEventListener('submit', async e => {
     e.preventDefault();
-    const accion = document.getElementById('accionTicket').value;
+    const accion = accionTicket.value;
     if (!accion) return alert('Selecciona una acción');
+
+    let detalle = "";
+    if (accion === "datosColegio") {
+        detalle = detalleColegio.value.trim();
+        if (!detalle) return alert("Por favor escribe qué deseas agregar, eliminar o modificar del colegio.");
+    }
+
     try {
         const ticketID = await generarIDTicket();
         await setDoc(doc(db, 'tickets', ticketID.toString()), {
             id: ticketID,
             usuarioUID: auth.currentUser.uid,
             accion,
+            detalle,
             estado: 'PENDIENTE DE RESOLUCION',
             fecha: new Date()
         });
@@ -125,17 +146,18 @@ document.getElementById('formTicket').addEventListener('submit', async e => {
         if (accion === 'recuperarContraseña') {
             await sendPasswordResetEmail(auth, auth.currentUser.email);
             alert('Ticket generado y correo de recuperación enviado.');
-        } else { 
-            alert('Ticket generado correctamente.'); 
+        } else {
+            alert('Ticket generado correctamente.');
         }
 
         modales.ticket.classList.remove('active');
         e.target.reset();
+        campoDatosColegio.style.display = 'none';
 
         actualizarResumenTickets();
 
-    } catch (err) { 
-        console.error('Error generando ticket:', err); 
+    } catch (err) {
+        console.error('Error generando ticket:', err);
         alert('Error al generar el ticket: ' + err.message);
     }
 });
@@ -151,11 +173,13 @@ export async function actualizarResumenTickets() {
         const total = ticketsUsuario.length;
         const resueltos = ticketsUsuario.filter(t => t.estado.toUpperCase() === 'RESUELTO').length;
         const pendientes = ticketsUsuario.filter(t => t.estado.toUpperCase() === 'PENDIENTE DE RESOLUCION').length;
+        const proceso = ticketsUsuario.filter(t => t.estado.toUpperCase() === 'EN PROCESO DE RESOLUCION').length;
 
         document.getElementById("totalTickets").textContent = total;
         document.getElementById("ticketsResueltos").textContent = resueltos;
+        document.getElementById("ticketsEnProceso").textContent = proceso;
         document.getElementById("ticketsPendientes").textContent = pendientes;
-    } catch (err) { 
-        console.error("Error al actualizar resumen de tickets:", err); 
+    } catch (err) {
+        console.error("Error al actualizar resumen de tickets:", err);
     }
 }

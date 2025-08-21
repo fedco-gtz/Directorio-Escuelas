@@ -7,13 +7,11 @@ import {
     getFirestore, collection, getDocs, updateDoc, doc, deleteDoc, getDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// --- Inicialización ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const ticketsContainer = document.getElementById('ticketsContainer');
 
-// --- Cerrar sesión ---
 document.getElementById('cerrarSesion').addEventListener('click', async () => {
     try {
         await signOut(auth);

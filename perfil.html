@@ -6,7 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Perfil | Directorio Escuelas</title>
   <link rel="stylesheet" href="./css/styles.css">
-    <link rel="icon" href="./img/Icon.png" type="image/png">
+  <link rel="icon" href="./img/Icon.png" type="image/png">
+  <style>
+    h2 {
+      margin-bottom: 50px;
+    }
+  </style>
 </head>
 
 <body class="bodyNav">
@@ -17,7 +22,7 @@
     <div>
       <a id="btnUsuario">MI PERFIL</a>
       <a href="estadisticas.html">ESTADÍSTICAS</a>
-      <a id="cerrarSesion">CERRAR SESIÓN</a>
+      <a id="cerrarSesion" class="cursor">CERRAR SESIÓN</a>
     </div>
   </nav>
 
@@ -39,9 +44,16 @@
       <option value="Especial">Especial</option>
       <option value="Centro Profesional">Centro de Formación Profesional</option>
       <option value="Educación Superior">Educación Superior</option>
+      <option value="Centros Complementarios">Centros Complementarios</option>
+      <option value="Otros">Otros</option>
     </select>
     <input type="text" id="direccion" placeholder="Dirección" required />
     <input type="text" id="barrio" placeholder="Localidad" required />
+    <select id="desfavorabilidad" required>
+      <option value="" disabled selected>Seleccionar desfavorabilidad</option>
+      <option value="SI">SI</option>
+      <option value="NO">NO</option>
+    </select>
     <input type="number" id="lat" placeholder="Latitud" step="any" required />
     <input type="number" id="lng" placeholder="Longitud" step="any" required />
     <button class="btn-login" type="submit">AGREGAR</button>
@@ -49,9 +61,9 @@
 
   <div id="popup"></div>
 
-  <div id="estadisticasColegios" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+  <div id="estadisticasColegios" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 50px 0;"></div>
 
-  <footer>
+  <footer class="footer">
     Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos
     reservados
   </footer>

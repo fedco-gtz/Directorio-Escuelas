@@ -7,89 +7,6 @@
     <title>Administrador | Directorio Escuelas</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="icon" href="./img/Icon.png" type="image/png" />
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: auto;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            font-size: 14px;
-            word-wrap: break-word;
-        }
-
-        thead {
-            background-color: #f4f4f4;
-        }
-
-        input,
-        select {
-            width: 90%;
-            box-sizing: border-box;
-            font-size: 13px;
-            padding: 4px;
-            border: none;
-        }
-
-        button {
-            padding: 5px 10px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        @media screen and (max-width: 768px) {
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            th,
-            td {
-                min-width: 120px;
-            }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 300px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-        }
-
-        .modal-content input {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 5px;
-            font-size: 14px;
-        }
-
-        .modal-content button {
-            margin-right: 5px;
-        }
-    </style>
 </head>
 
 <body class="bodyNav">
@@ -102,7 +19,7 @@
             <a href="#" onclick="history.back(); return false;">VOLVER</a>
             <a href="estadisticas.html">ESTADÍSTICAS</a>
             <a href="administradorU.html">ADMINISTRAR USUARIOS</a>
-            <a id="cerrarSesion">CERRAR SESIÓN</a>
+            <a id="cerrarSesion" class="cursor">CERRAR SESIÓN</a>
         </div>
     </nav>
 
@@ -112,8 +29,8 @@
 
     <h2>LISTADO DE COLEGIOS</h2>
     <div style="margin-bottom: 20px;">
-        <label for="filtroNivel"><strong>Filtrar por nivel:</strong></label>
-        <select id="filtroNivel">
+        <label for="filtroNivel" class="filtroNivel"><strong>Filtrar por nivel:</strong></label>
+        <select id="filtroNivel" class="selectFiltro">
             <option value="">Todos</option>
             <option value="Inicial">Inicial</option>
             <option value="Primaria">Primaria</option>
@@ -132,15 +49,15 @@
     <table border="1" cellpadding="5">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Nivel</th>
-                <th>Dirección</th>
-                <th>Localidad</th>
-                <th>Desfavorabilidad</th>
-                <th>Jornada</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Acciones</th>
+                <th>NOMBRE</th>
+                <th>NIVEL</th>
+                <th>DIRECCIÓN</th>
+                <th>LOCALIDAD</th>
+                <th>DESFAVORABILIDAD</th>
+                <th>JORNADA</th>
+                <th>LATITUD</th>
+                <th>LONGITUD</th>
+                <th>ACCIONES</th>
             </tr>
         </thead>
         <tbody id="tablaColegios"></tbody>
@@ -148,20 +65,20 @@
 
     <div id="popup"></div>
 
-    <footer>
+    <footer class="footer">
         Contacto: <a href="mailto:gutierrezfedericog@gmail.com">gutierrezfedericog@gmail.com</a> | Todos los derechos
         reservados
     </footer>
 
     <div id="descripcionModal" class="modal">
         <div class="modal-content">
-            <h3>Agregar Descripción</h3>
+            <h3>AGREGAR DESCRIPCIÓN</h3>
             <input type="text" id="telefonoInput" placeholder="Teléfono" />
             <input type="email" id="emailInput" placeholder="Email" />
             <input type="text" id="colectivosInput" placeholder="Líneas de colectivos" />
             <div>
-                <button id="guardarDescripcionBtn">Guardar</button>
-                <button id="cancelarDescripcionBtn">Cancelar</button>
+                <button id="guardarDescripcionBtn" class="btn-description">GUARDAR</button>
+                <button id="cancelarDescripcionBtn" class="btn-description">CANCELAR</button>
             </div>
         </div>
     </div>

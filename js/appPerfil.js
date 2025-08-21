@@ -37,7 +37,7 @@ async function mostrarEstadisticas() {
     }, {});
 
     const niveles = ['Inicial', 'Primaria', 'Secundaria', 'Técnica', 'Especial',
-                     'Primaria Adultos', 'Secundaria Adultos', 'Centro Profesional', 'Educación Superior'];
+    'Primaria Adultos', 'Secundaria Adultos', 'Centro Profesional', 'Educación Superior', 'Centros Complementarios', 'Otros'];
 
     contenedorEstadisticas.innerHTML = niveles.map(nivel => `
       <div class="card-nivel" style="border:1px solid #ccc; padding:10px; width:130px; text-align:center;">

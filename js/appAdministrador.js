@@ -131,14 +131,14 @@ async function cargarColegios(nivelFiltro = '') {
                 <td><input value="${c.lat || ''}" type="number" step="any" /></td>
                 <td><input value="${c.lng || ''}" type="number" step="any" /></td>
                 <td>
-                    <button data-id="${c.id}" class="guardarBtn">Guardar</button>
-                    <button data-id="${c.id}" class="descripcionBtn">
-                        Descripción ${tieneDesc ? '✅' : '❌'}
+                    <button data-id="${c.id}" class="btn-table">GUARDAR</button>
+                    <button data-id="${c.id}" class="btn-table-description">
+                        DESCRIPCIÓN ${tieneDesc ? '✅' : '❌'}
                     </button>
                 </td>
             `;
 
-            tr.querySelector('.guardarBtn').addEventListener('click', async () => {
+            tr.querySelector('.btn-table').addEventListener('click', async () => {
                 const inputs = tr.querySelectorAll('input, select');
                 await updateDoc(doc(db, 'escuelas', c.id), {
                     nombre: inputs[0].value,
@@ -147,17 +147,17 @@ async function cargarColegios(nivelFiltro = '') {
                     barrio: inputs[3].value,
                     desfavorabilidad: inputs[4].value,
                     jornadaCompleta: inputs[5].value,
-                    lat: parseFloat(inputs[6].value),
-                    lng: parseFloat(inputs[7].value),
+                    lat: parseFloat(parseFloat(inputs[6].value).toFixed(4)),
+                    lng: parseFloat(parseFloat(inputs[7].value).toFixed(4)),
                 });
 
                 const index = cacheColegios.findIndex(item => item.id === c.id);
                 if (index >= 0) cacheColegios[index] = { ...cacheColegios[index], nombre: inputs[0].value, nivel: inputs[1].value, direccion: inputs[2].value, barrio: inputs[3].value, desfavorabilidad: inputs[4].value, jornadaCompleta: inputs[5].value, lat: parseFloat(inputs[6].value), lng: parseFloat(inputs[7].value) };
-                
+
                 mostrarPopup('COLEGIO ACTUALIZADO CORRECTAMENTE');
             });
 
-            tr.querySelector('.descripcionBtn').addEventListener('click', () => abrirModalDescripcion(c.id));
+            tr.querySelector('.btn-table-description').addEventListener('click', () => abrirModalDescripcion(c.id));
 
             tablaBody.appendChild(tr);
         });

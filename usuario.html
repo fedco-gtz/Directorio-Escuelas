@@ -25,8 +25,8 @@
         </a>
         <div>
             <a href="#" onclick="history.back(); return false;">VOLVER</a>
-            <a id="btnOpenTicket">GENERAR TICKET</a>
-            <a id="cerrarSesion">CERRAR SESIÓN</a>
+            <a id="btnOpenTicket" class="cursor">GENERAR TICKET</a>
+            <a id="cerrarSesion" class="cursor">CERRAR SESIÓN</a>
         </div>
     </nav>
 
@@ -90,13 +90,18 @@
             <span class="cerrar" id="closeTicket" aria-label="Cerrar modal ticket">&times;</span>
             <h3 id="modalTicketTitle">GENERAR TICKET</h3>
             <form id="formTicket">
-                <select id="accionTicket" required>
+                <select id="accionTicket" class="selectPopup" required>
                     <option value="" disabled selected>SELECCIONA EL MOTIVO DEL TICKET</option>
                     <option value="datosColegio">AGREGAR, ELIMINAR O MODIFICAR DATOS DE COLEGIO</option>
                     <option value="cambioRol">SOLICITAR CAMBIO DE ROL</option>
                     <option value="recuperarContraseña">SOLICITAR RECUPERAR CONTRASEÑA</option>
                     <option value="eliminarCuenta">SOLICITAR ELIMINAR CUENTA</option>
                 </select>
+                <div id="campoDatosColegio" class="datos-colegio">
+                    <label for="detalleColegio">Especifica qué deseas agregar, eliminar o modificar:</label>
+                    <textarea id="detalleColegio" name="detalleColegio" class="detalle-textarea"
+                        placeholder="Ej: Agregar dirección del colegio..."></textarea>
+                </div>
                 <button type="submit">GENERAR</button>
             </form>
         </div>
